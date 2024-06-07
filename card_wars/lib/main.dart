@@ -5,10 +5,12 @@ import 'providers/Base.dart';
 import 'home_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -16,10 +18,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => Base()),
         StreamProvider<List<Item>>(
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
-          initialData: [],
+          initialData: const [],
         ),
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         home: HomeScreen(),
       ),
     );

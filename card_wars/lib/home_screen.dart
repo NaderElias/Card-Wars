@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,17 +8,21 @@ import '../providers/Base.dart';
 import '../providers/mongodb_service.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
   _HomeScreen createState() => _HomeScreen();
 }
 
 class _HomeScreen extends State<HomeScreen> {
+  @override
   void initState() {
     super.initState();
     // Call the function from provider when the page is opened
     MongoDBService mongoDBService =
-        Provider.of<Base>(context, listen: false).mongoDBService;
+        Provider.of<MongoDBService>(context, listen: false);
     // Call the fetch method directly from the MongoDBService instance
-    mongoDBService.fetachop();
+    mongoDBService.fetchop();
   }
 
   @override
@@ -29,7 +32,7 @@ class _HomeScreen extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Database Items'),
+        title: const Text('Database Items'),
       ),
       body: ListView.builder(
         itemCount: items.length,
@@ -54,7 +57,7 @@ class _HomeScreen extends State<HomeScreen> {
             await base.mongoDBService.insertItem(newItem);
           }
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

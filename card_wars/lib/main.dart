@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import './Providers/Base.dart';
-import './home_screen.dart';
+import 'Providers/Base.dart';  // Make sure the path is correct
+import 'Models/item_model.dart';
+import 'home_screen.dart';  // Make sure the path is correct
 
 void main() {
   runApp(MyApp());
@@ -12,7 +13,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Base()),
+        StreamProvider<List<Item>>(
+          create: (context) => MongoDBService().itemsStream,
+          initialData: [],
+        ),
       ],
       child: MaterialApp(
         home: HomeScreen(),

@@ -10,4 +10,11 @@ class Item {
       image: map['image'],
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'image': image,
+    };
+  }
 }

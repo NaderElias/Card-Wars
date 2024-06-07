@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Models/item_model.dart';  // Make sure the path is correct
+import 'models/item_model.dart';
+import 'providers/Base.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Item> items = Provider.of<List<Item>>(context);
+    Base base = Provider.of<Base>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -19,6 +21,13 @@ class HomeScreen extends StatelessWidget {
             subtitle: Text(items[index].image),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          Item newItem = Item(name: 'New Name', image: 'New Image');
+          await base.mongoDBService.insertItem(newItem);
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

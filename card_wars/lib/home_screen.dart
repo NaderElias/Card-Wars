@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../models/item_model.dart';
 import '../providers/Base.dart';
+import '../providers/mongodb_service.dart';
 
 class HomeScreen extends StatefulWidget {
   _HomeScreen createState() => _HomeScreen();
@@ -15,8 +16,10 @@ class _HomeScreen extends State<HomeScreen> {
   void initState() {
     super.initState();
     // Call the function from provider when the page is opened
-    Base mec = Provider.of<Base>(context, listen: false);
-    mec.mongoDBService.fetch();
+    MongoDBService mongoDBService =
+        Provider.of<Base>(context, listen: false).mongoDBService;
+    // Call the fetch method directly from the MongoDBService instance
+    mongoDBService.fetachop();
   }
 
   @override

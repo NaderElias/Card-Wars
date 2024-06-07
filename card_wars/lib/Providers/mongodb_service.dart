@@ -12,6 +12,10 @@ class MongoDBService {
 
   MongoDBService() {
     _init();
+    void fetchop() async {
+  final documents = await _collection.find().toList();
+      final items = documents.map((doc) => Item.fromMap(doc)).toList();
+      _controller.add(items);}
   }
 
   Future<void> _init() async {
@@ -23,13 +27,10 @@ class MongoDBService {
 
   void _startListening() {
     Timer.periodic(Duration(seconds: 360), (_) async {
-      fetch();
+      fetchop();
     });
   }
-Future<void> fetch() async {
-  final documents = await _collection.find().toList();
-      final items = documents.map((doc) => Item.fromMap(doc)).toList();
-      _controller.add(items);}
+
   Future<void> insertItem(Item item) async {
     try {
       await _collection.insert(item.toMap());
@@ -47,7 +48,10 @@ Future<void> fetch() async {
   }
 
   Stream<List<Item>> get itemsStream => _controller.stream;
-
+void fetchop() async {
+  final documents = await _collection.find().toList();
+      final items = documents.map((doc) => Item.fromMap(doc)).toList();
+      _controller.add(items);}
   void dispose() {
     _controller.close();
     _db.close();

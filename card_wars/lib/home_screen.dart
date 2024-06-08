@@ -29,7 +29,7 @@ class _HomeScreen extends State<HomeScreen> {
   Widget build(BuildContext context) {
     List<Item> items = Provider.of<List<Item>>(context);
     Base base = Provider.of<Base>(context, listen: false);
-
+   // base.initialize('');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Database Items'),

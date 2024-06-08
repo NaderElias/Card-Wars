@@ -10,27 +10,28 @@ class MongoDBService {
   late Db _db;
   late DbCollection _collection;
 
-  MongoDBService() {
-    _init();
+  MongoDBService(String col) {
+    _init(col);
     void fetchop() async {
   final documents = await _collection.find().toList();
       final items = documents.map((doc) => Item.fromMap(doc)).toList();
       _controller.add(items);}
   }
 
-  Future<void> _init() async {
+  Future<void> _init(String col) async {
     _db = await Db.create(connectionString);
     await _db.open();
-    _collection = _db.collection('Cards');
-    _startListening();
+    _collection = _db.collection(col);
+    _startListening(col);
   }
 
-  void _startListening() {
-    Timer.periodic(Duration(seconds: 360), (_) async {
-      fetchop();
-    });
+  void _startListening(String col) {
+    if(col=='live'){Timer.periodic(Duration(seconds: 1), (_) async {
+      getGame();
+    });} 
+   
   }
-
+  void getGame(){}
   Future<void> insertItem(Item item) async {
     try {
       await _collection.insert(item.toMap());

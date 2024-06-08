@@ -1,21 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import '../models/item_model.dart';
 
 class MongoDBService {
-  final _controller = StreamController<List<Item>>();
-  final String connectionString = 'mongodb+srv://Finn:yt8750yg@cluster0.pv838z4.mongodb.net/CardWars?retryWrites=true&w=majority';
+  late final StreamController<List<Item>> _controller;
+  final String connectionString =
+      'mongodb+srv://Finn:yt8750yg@cluster0.pv838z4.mongodb.net/CardWars?retryWrites=true&w=majority';
   late Db _db;
   late DbCollection _collection;
 
   MongoDBService(String col) {
+    _controller = StreamController<List<Item>>();
     _init(col);
-    void fetchop() async {
-  final documents = await _collection.find().toList();
-      final items = documents.map((doc) => Item.fromMap(doc)).toList();
-      _controller.add(items);}
   }
 
   Future<void> _init(String col) async {
@@ -26,14 +25,19 @@ class MongoDBService {
   }
 
   void _startListening(String col) {
-    if(col=='live'){Timer.periodic(Duration(seconds: 1), (_) async {
-      getGame();
-    });} else{Timer.periodic(Duration(seconds: 1), (_) async {
-      fetchop();
-    });}
-   
+    if (col == 'live') {
+      Timer.periodic(Duration(seconds: 1), (_) async {
+        getGame();
+      });
+    } else {
+      
+        fetchop();
+      
+    }
   }
-  void getGame(){}
+
+  void getGame() {}
+
   Future<void> insertItem(Item item) async {
     try {
       await _collection.insert(item.toMap());
@@ -51,10 +55,13 @@ class MongoDBService {
   }
 
   Stream<List<Item>> get itemsStream => _controller.stream;
-void fetchop() async {
-  final documents = await _collection.find().toList();
-      final items = documents.map((doc) => Item.fromMap(doc)).toList();
-      _controller.add(items);}
+
+  void fetchop() async {
+    final documents = await _collection.find().toList();
+    final items = documents.map((doc) => Item.fromMap(doc)).toList();
+    _controller.add(items);
+  }
+
   void dispose() {
     _controller.close();
     _db.close();

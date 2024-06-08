@@ -15,33 +15,44 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreen extends State<HomeScreen> {
+  Base base = Base(); // Initialize base object outside of initState and build
+
   @override
   void initState() {
     super.initState();
     // Call the function from provider when the page is opened
- /*   MongoDBService mongoDBService =
-        Provider.of<MongoDBService>(context, listen: false);
-    // Call the fetch method directly from the MongoDBService instance
-    mongoDBService.fetchop();*/
+    base.initialize('Cards');
+    base.mongoDBService.fetchop();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Item> items = Provider.of<List<Item>>(context);
-    Base base = Provider.of<Base>(context, listen: false);
-   base.initialize('Cards');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Database Items'),
       ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          Uint8List imageBytes = base64Decode(items[index].image);
-          return ListTile(
-            title: Text(items[index].name),
-            subtitle: Image.memory(imageBytes),
-          );
+      body: StreamBuilder<List<Item>>(
+        stream: base.mongoDBService.itemsStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No items available'));
+          } else {
+            List<Item> items = snapshot.data!;
+            return ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                Uint8List imageBytes = base64Decode(items[index].image);
+                return ListTile(
+                  title: Text(items[index].name),
+                  subtitle: Image.memory(imageBytes),
+                );
+              },
+            );
+          }
         },
       ),
       floatingActionButton: FloatingActionButton(
@@ -56,6 +67,7 @@ class _HomeScreen extends State<HomeScreen> {
             Item newItem = Item(name: 'New Name', image: base64Image);
             await base.mongoDBService.insertItem(newItem);
           }
+          base.mongoDBService.fetchop();
         },
         child: const Icon(Icons.add),
       ),

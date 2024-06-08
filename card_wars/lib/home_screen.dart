@@ -19,17 +19,17 @@ class _HomeScreen extends State<HomeScreen> {
   void initState() {
     super.initState();
     // Call the function from provider when the page is opened
-    MongoDBService mongoDBService =
+ /*   MongoDBService mongoDBService =
         Provider.of<MongoDBService>(context, listen: false);
     // Call the fetch method directly from the MongoDBService instance
-    mongoDBService.fetchop();
+    mongoDBService.fetchop();*/
   }
 
   @override
   Widget build(BuildContext context) {
     List<Item> items = Provider.of<List<Item>>(context);
     Base base = Provider.of<Base>(context, listen: false);
-   // base.initialize('');
+   base.initialize('Cards');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Database Items'),

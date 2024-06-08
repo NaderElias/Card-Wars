@@ -28,7 +28,9 @@ class MongoDBService {
   void _startListening(String col) {
     if(col=='live'){Timer.periodic(Duration(seconds: 1), (_) async {
       getGame();
-    });} 
+    });} else{Timer.periodic(Duration(seconds: 1), (_) async {
+      fetchop();
+    });}
    
   }
   void getGame(){}

@@ -15,18 +15,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreen extends State<HomeScreen> {
-  Base base = Base(); // Initialize base object outside of initState and build
-
   @override
   void initState() {
     super.initState();
-    // Call the function from provider when the page is opened
+    // Use the provider instance of Base
+    final base = Provider.of<Base>(context, listen: false);
     base.initialize('Cards');
     base.mongoDBService.fetchop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final base = Provider.of<Base>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Database Items'),

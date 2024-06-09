@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import '../models/item_model.dart';
+import '../models/user_model.dart';
 
 class MongoDBService {
   late final StreamController<List<Item>> _controller;
@@ -38,14 +39,36 @@ class MongoDBService {
 
   void getGame() {}
 
-  Future<void> insertItem(Item item) async {
+  Future<String> login(String user,String password) async {
     try {
-      await _collection.insert(item.toMap());
-      print('Item inserted: $item');
+      final userm = await _collection.findOne({
+        'username': user,
+        'password': password,
+      });
+      if(userm==null){return '404';}
+      return '200';
+    } catch (e) {
+      print('Error inserting item: $e');
+      return '500';
+    }
+  }
+Future<void> register(User user) async {
+    try {
+      await _collection.insert(user.toMap());
     } catch (e) {
       print('Error inserting item: $e');
     }
   }
+
+
+  Future<void> insertItem(Item item) async {
+    try {
+      await _collection.insert(item.toMap());
+      print('Item inserted: $item');
+   
+
+  }
+  catch(e){}}
 
   Future<String> encodeImageToBase64(String imagePath) async {
     File imageFile = File(imagePath);

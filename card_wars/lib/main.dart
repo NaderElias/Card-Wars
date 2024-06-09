@@ -8,27 +8,10 @@ import 'register.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {
-  runApp( MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-   MyApp({super.key});
-  final GoRouter _router = GoRouter(
-    routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => LoginPage(),
-      ),
-      GoRoute(
-        path: '/register',
-        builder: (context, state) => RegisterPage(),
-      ),
-      GoRoute(
-        path: '/cards',
-        builder: (context, state) => HomeScreen(),
-      ),
-    ],
-  );
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -38,10 +21,32 @@ class MyApp extends StatelessWidget {
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
           initialData: const [],
         ),
+        Provider<GoRouter>.value(value: _buildRouter()), // Provide the GoRouter instance
       ],
-      child: const MaterialApp(
-        home: HomeScreen(),
+      child: MaterialApp(
+        title: 'Your App Title',
+        debugShowCheckedModeBanner: false,
+        home: LoginPage(),
       ),
+    );
+  }
+
+  GoRouter _buildRouter() {
+    return GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => LoginPage(),
+        ),
+        GoRoute(
+          path: '/register',
+          builder: (context, state) => RegisterPage(),
+        ),
+        GoRoute(
+          path: '/cards',
+          builder: (context, state) => HomeScreen(),
+        ),
+      ],
     );
   }
 }

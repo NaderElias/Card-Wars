@@ -21,30 +21,29 @@ class MyApp extends StatelessWidget {
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
           initialData: const [],
         ),
-        Provider<GoRouter>.value(value: _buildRouter()), // Provide the GoRouter instance
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'Your App Title',
         debugShowCheckedModeBanner: false,
-        home: LoginPage(),
+        routerConfig: _buildRouter(context),
       ),
     );
   }
 
-  GoRouter _buildRouter() {
+  GoRouter _buildRouter(BuildContext context) {
     return GoRouter(
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => LoginPage(),
+          builder: (context, state) =>  LoginPage(),
         ),
         GoRoute(
           path: '/register',
-          builder: (context, state) => RegisterPage(),
+          builder: (context, state) =>  RegisterPage(),
         ),
         GoRoute(
           path: '/cards',
-          builder: (context, state) => HomeScreen(),
+          builder: (context, state) =>  HomeScreen(),
         ),
       ],
     );

@@ -22,9 +22,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final base = Provider.of<Base>(context, listen: false);
+        final base = Provider.of<Base>(context, listen: false);
+
     base.initialize('user');
-     final router = context.read<GoRouter>();
     return Scaffold(
       appBar: AppBar(
         title: Text('Register'),
@@ -85,7 +85,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     password: _passwordController.text,
                   );
                   base.mongoDBService.register(user);
-                  router.go('/');
+                  context.go('/');
 
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(

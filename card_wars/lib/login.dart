@@ -16,7 +16,6 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final base = Provider.of<Base>(context, listen: false);
     base.initialize('user');
-     final router = context.read<GoRouter>();
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
@@ -40,7 +39,7 @@ class LoginPage extends StatelessWidget {
               onPressed: () {
                 // Handle login logic here
                 var g=base.mongoDBService.login(_emailController.text,_passwordController.text);
-                if(g=='200'){router.go('/cards');
+                if(g=='200'){context.go('/cards');
 }
                 
               },
@@ -48,7 +47,7 @@ class LoginPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-              router.go('/register');
+              context.go('/register');
               },
               child: Text('Register'),
             ),

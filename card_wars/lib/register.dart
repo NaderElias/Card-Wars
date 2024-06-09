@@ -3,16 +3,26 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
+import '../models/item_model.dart';
 import '../models/user_model.dart';
-import '../providers/base.dart';
 
+import '../providers/Base.dart';
+import '../providers/mongodb_service.dart';
+import 'package:go_router/go_router.dart';
 class RegisterPage extends StatefulWidget {
+const RegisterPage({super.key});
+
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  void initState() {
+    super.initState();
+    // Use the provider instance of Base
+    final base = Provider.of<Base>(context, listen: false);
+    base.initialize('user');
+  }
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
@@ -22,9 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-        final base = Provider.of<Base>(context, listen: false);
-
-    base.initialize('user');
+final base = Provider.of<Base>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: Text('Register'),

@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Base()),
+        ChangeNotifierProvider(create: (context) => Base()),
         StreamProvider<List<Item>>(
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
           initialData: const [],
@@ -38,9 +38,10 @@ class MyApp extends StatelessWidget {
           builder: (context, state) =>  LoginPage(),
         ),
         GoRoute(
-          path: '/register',
-          builder: (context, state) =>  RegisterPage(),
-        ),
+  path: '/register',
+  builder: (context, state) => RegisterPage(),
+),
+
         GoRoute(
           path: '/cards',
           builder: (context, state) =>  HomeScreen(),

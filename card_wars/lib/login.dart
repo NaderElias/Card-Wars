@@ -36,18 +36,20 @@ class LoginPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Handle login logic here
-                var g=base.mongoDBService.login(_emailController.text,_passwordController.text);
-                if(g=='200'){context.go('/cards');
-}
-                
+                var g = await  base.mongoDBService
+                    .login(_emailController.text, _passwordController.text);
+                print(g);
+                if (g == '200') {
+                  context.go('/cards');
+                }
               },
               child: Text('Login'),
             ),
             TextButton(
               onPressed: () {
-              context.go('/register');
+                context.go('/register');
               },
               child: Text('Register'),
             ),

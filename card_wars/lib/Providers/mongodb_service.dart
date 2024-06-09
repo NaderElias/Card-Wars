@@ -41,11 +41,12 @@ class MongoDBService {
 
   Future<String> login(String user,String password) async {
     try {
-      final userm = await _collection.findOne({
+      
+      final userm = await _collection.find({
         'username': user,
         'password': password,
       });
-      if(userm==null){return '404';}
+      if(userm==null){print(userm);return '404';}
       return '200';
     } catch (e) {
       print('Error inserting item: $e');

@@ -1,7 +1,9 @@
+import 'package:card_wars/Providers/arena.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/item_model.dart';
 import 'providers/Base.dart';
+import 'providers/arena.dart';
 import 'home_screen.dart';
 import 'login.dart';
 import 'register.dart';
@@ -17,6 +19,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => Base()),
+        ChangeNotifierProvider(create: (context) => ArenaProvider()),
         StreamProvider<List<Item>>(
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
           initialData: const [],

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../models/item_model.dart';
 import '../providers/Base.dart';
 import '../providers/mongodb_service.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +32,14 @@ class _HomeScreen extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Database Items'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              context.go('/arena');
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<List<Item>>(
         stream: base.mongoDBService.itemsStream,
@@ -72,6 +81,7 @@ class _HomeScreen extends State<HomeScreen> {
         },
         child: const Icon(Icons.add),
       ),
+      
     );
   }
 }

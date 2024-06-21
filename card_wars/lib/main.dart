@@ -1,4 +1,3 @@
-import 'package:card_wars/Providers/arena.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/item_model.dart';
@@ -6,6 +5,7 @@ import 'providers/Base.dart';
 import 'providers/arena.dart';
 import 'home_screen.dart';
 import 'login.dart';
+import 'board.dart';
 import 'register.dart';
 import 'package:go_router/go_router.dart';
 
@@ -48,6 +48,11 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/cards',
           builder: (context, state) =>  HomeScreen(),
+        ),
+        
+        GoRoute(
+          path: '/arena',
+          builder: (context, state) =>  BoardPage(),
         ),
       ],
     );

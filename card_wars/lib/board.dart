@@ -14,12 +14,7 @@ class BoardPage extends StatelessWidget {
       body: Center(
         child: ArenaWidget(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-         null;
-        },
-        child: Icon(Icons.add),
-      ),
+
     );
   }
 }

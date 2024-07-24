@@ -7,14 +7,16 @@ class BoardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Board Page'),
+    return ChangeNotifierProvider(
+      create: (context) => ArenaProvider(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Board Page'),
+        ),
+        body: Center(
+          child: ArenaWidget(),
+        ),
       ),
-      body: Center(
-        child: ArenaWidget(),
-      ),
-
     );
   }
 }

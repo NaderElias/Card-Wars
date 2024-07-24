@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/item_model.dart';
 import 'providers/Base.dart';
-import 'providers/arena.dart';
 import 'providers/kards.dart';
+import 'providers/arena.dart';
 import 'home_screen.dart';
 import 'login.dart';
 import 'board.dart';
@@ -19,11 +19,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-      
         ChangeNotifierProvider(create: (context) => Base()),
-          ChangeNotifierProvider(create: (context) => ItemsProvider()),
+        ChangeNotifierProvider(create: (context) => ItemsProvider()),
         ChangeNotifierProvider(create: (context) => ArenaProvider()),
-        
         StreamProvider<List<Item>>(
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
           initialData: const [],
@@ -42,21 +40,19 @@ class MyApp extends StatelessWidget {
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) =>  LoginPage(),
+          builder: (context, state) => LoginPage(),
         ),
         GoRoute(
-  path: '/register',
-  builder: (context, state) => RegisterPage(),
-),
-
+          path: '/register',
+          builder: (context, state) => RegisterPage(),
+        ),
         GoRoute(
           path: '/cards',
-          builder: (context, state) =>  HomeScreen(),
+          builder: (context, state) => HomeScreen(),
         ),
-        
         GoRoute(
           path: '/arena',
-          builder: (context, state) =>  BoardPage(),
+          builder: (context, state) => BoardPage(),
         ),
       ],
     );

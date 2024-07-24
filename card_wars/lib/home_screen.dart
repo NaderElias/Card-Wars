@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../models/item_model.dart';
 import '../providers/Base.dart';
-import '../Providers/kards.dart';
+import '../providers/kards.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +22,7 @@ class _HomeScreen extends State<HomeScreen> {
     final base = Provider.of<Base>(context, listen: false);
     base.initialize('Cards');
     base.mongoDBService.fetchop();
-    final itemsprovider = Provider.of<ItemsProvider>(context, listen: false);
+  //  final itemsprovider = Provider.of<ItemsProvider>(context, listen: false);
   }
 
   @override
@@ -53,7 +53,7 @@ class _HomeScreen extends State<HomeScreen> {
             return Center(child: Text('No items available'));
           } else {
             List<Item> items = snapshot.data!;
-            itemsProvider.setItems(items); // Update the shared state
+            itemsProvider.setItems(items); 
 
             return ListView.builder(
               itemCount: items.length,

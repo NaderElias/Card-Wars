@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../models/item_model.dart';
 import 'Base.dart';
 import 'mongodb_service.dart';
-import '../Providers/kards.dart';
+import '../providers/kards.dart';
 
 class ArenaProvider with ChangeNotifier {
   List<List<Item?>> _map = List.generate(

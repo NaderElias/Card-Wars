@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import '../models/item_model.dart';
+import '../models/game_model.dart';
 import '../models/user_model.dart';
 
 class MongoDBService {
@@ -28,7 +29,7 @@ class MongoDBService {
   void _startListening(String col) {
     if (col == 'live') {
       Timer.periodic(Duration(seconds: 1), (_) async {
-        getGame();
+       
       });
     } else {
       
@@ -37,7 +38,7 @@ class MongoDBService {
     }
   }
 
-  void getGame() {}
+
 
   Future<String> login(String user,String password) async {
     try {
@@ -70,6 +71,24 @@ Future<void> register(User user) async {
 
   }
   catch(e){}}
+
+
+  Future<void> insertGame(Game game) async {
+    try {
+      await _collection.insert(game.toMap());
+      print('Item inserted: $game');
+   
+
+  }
+  catch(e){}}
+  Future<Map<String, dynamic>?> getGame(String s) async {
+    try {
+       final objectId = ObjectId.parse(s); // Convert the string ID to ObjectId
+    return await _collection.findOne(where.id(objectId));
+   
+
+  }
+  catch(e){print(e);}}
 
   Future<String> encodeImageToBase64(String imagePath) async {
     File imageFile = File(imagePath);

@@ -14,7 +14,7 @@ class ArenaProvider with ChangeNotifier {
   );
 
   List<List<Item?>> get map => _map;
-
+  int fcard=6;
   void updateItem(int row, int col, Item? item) {
     _map[row][col] = item;
     notifyListeners();
@@ -37,6 +37,8 @@ class ArenaWidget extends StatelessWidget {
   Item? onItemClicked = null;
 
   ArenaWidget({super.key});
+  
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,58 +60,90 @@ class ArenaWidget extends StatelessWidget {
       }
     }
 
-    return Consumer<ArenaProvider>(
-      builder: (context, arenaProvider, child) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (var rowIndex = 0; rowIndex < arenaProvider.map.length; rowIndex++)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var colIndex = 0; colIndex < arenaProvider.map[rowIndex].length; colIndex++)
-                    GestureDetector(
-                      onTap: () => _onCellTap(context, rowIndex, colIndex),
-                      child: Container(
-                        margin: EdgeInsets.all(4.0),
-                        width: 60,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          color: arenaProvider.map[rowIndex][colIndex] == null
-                              ? Colors.grey
-                              : Colors.white,
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(8),
+    return Stack(
+      children: [
+        // Main Arena
+        Consumer<ArenaProvider>(
+          builder: (context, arenaProvider, child) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var rowIndex = 0; rowIndex < arenaProvider.map.length; rowIndex++)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for (var colIndex = 0; colIndex < arenaProvider.map[rowIndex].length; colIndex++)
+                        GestureDetector(
+                          onTap: () => _onCellTap(context, rowIndex, colIndex),
+                          child: Container(
+                            margin: EdgeInsets.all(4.0),
+                            width: 60,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: arenaProvider.map[rowIndex][colIndex] == null
+                                  ? Colors.grey
+                                  : Colors.white,
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: arenaProvider.map[rowIndex][colIndex] == null
+                                ? null
+                                : Image.memory(
+                                    base64Decode(arenaProvider.map[rowIndex][colIndex]!.image),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                         ),
-                        child: arenaProvider.map[rowIndex][colIndex] == null
-                            ? null
-                            : Image.memory(
-                                base64Decode(arenaProvider.map[rowIndex][colIndex]!.image),
-                                fit: BoxFit.cover,
-                              ),
+                    ],
+                  ),
+              ],
+            );
+          },
+        ),
+        // Overlay Cards
+        Positioned(
+          top: 10,
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              for (int i = 0; i < arenaProvider.fcard; i++)
+                Transform.translate(
+                  offset: Offset(i * 4.0 - 12, 0), // Adjust the offset for overlapping effect
+                  child: Transform.rotate(
+                    angle: (i - 2.5) * 0.02, // Adjust the angle for slight fan effect
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 2.0),
+                      width: 60,
+                      height: 90,
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                ],
-              ),
-          ],
-        );
-      },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
- void _onCellTap(BuildContext context, int row, int col) {
-  final arenaProvider = Provider.of<ArenaProvider>(context, listen: false);
-  final item = arenaProvider.getItem(row, col);
+  void _onCellTap(BuildContext context, int row, int col) {
+    final arenaProvider = Provider.of<ArenaProvider>(context, listen: false);
+    final item = arenaProvider.getItem(row, col);
 
-  // Show Snackbar with item details
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(item != null ? 'Item: ${item.name}' : 'No item in this cell'),
-    ),
-  );
+    // Show Snackbar with item details
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(item != null ? 'Item: ${item.name}' : 'No item in this cell'),
+      ),
+    );
 
-  // Optional: set `onItemClicked` if needed
-  onItemClicked = item;
-}
-
+    // Optional: set `onItemClicked` if needed
+    onItemClicked = item;
+  }
 }

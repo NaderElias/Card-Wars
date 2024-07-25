@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../models/item_model.dart';
 import '../providers/Base.dart';
 import '../providers/kards.dart';
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -16,13 +15,85 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreen extends State<HomeScreen> {
+  // State to determine if we are showing buttons or content
+  bool _showingContent = false;
+  Widget _drawerContent = Container(); // Placeholder for content widget
+
   @override
   void initState() {
     super.initState();
     final base = Provider.of<Base>(context, listen: false);
     base.initialize('Cards');
     base.mongoDBService.fetchop();
-  //  final itemsprovider = Provider.of<ItemsProvider>(context, listen: false);
+  }
+
+  void _showDrawerContent(Widget content) {
+    setState(() {
+      _showingContent = true;
+      _drawerContent = content;
+    });
+  }
+
+  void _showDrawerButtons() {
+    setState(() {
+      _showingContent = false;
+      _drawerContent = _buildDrawerButtons();
+    });
+  }
+
+  Widget _buildDrawerButtons() {
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: <Widget>[
+        DrawerHeader(
+          decoration: BoxDecoration(
+            color: Colors.blue,
+          ),
+          child: Text(
+            'Menu',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+            ),
+          ),
+        ),
+        ListTile(
+          title: Text('Option 1'),
+          onTap: () => _showDrawerContent(_buildContent('Content for Option 1')),
+        ),
+        ListTile(
+          title: Text('Option 2'),
+          onTap: () => _showDrawerContent(_buildContent('Content for Option 2')),
+        ),
+        ListTile(
+          title: Text('Option 3'),
+          onTap: () => _showDrawerContent(_buildContent('Content for Option 3')),
+        ),
+        // Add more options as needed
+      ],
+    );
+  }
+
+  Widget _buildContent(String contentText) {
+    return Column(
+      children: [
+        AppBar(
+          title: Text('Content View'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: _showDrawerButtons,
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Text(
+              contentText,
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -42,31 +113,42 @@ class _HomeScreen extends State<HomeScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<List<Item>>(
-        stream: base.mongoDBService.itemsStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No items available'));
-          } else {
-            List<Item> items = snapshot.data!;
-            itemsProvider.setItems(items); 
+      drawer: Drawer(
+        child: _showingContent ? _drawerContent : _buildDrawerButtons(),
+      ),
+      body: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: StreamBuilder<List<Item>>(
+              stream: base.mongoDBService.itemsStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('No items available'));
+                } else {
+                  List<Item> items = snapshot.data!;
+                  itemsProvider.setItems(items);
 
-            return ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                Uint8List imageBytes = base64Decode(items[index].image);
-                return ListTile(
-                  title: Text(items[index].name),
-                  subtitle: Image.memory(imageBytes),
-                );
+                  return ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      Uint8List imageBytes = base64Decode(items[index].image);
+                      return ListTile(
+                        title: Text(items[index].name),
+                        subtitle: Image.memory(imageBytes),
+                      );
+                    },
+                  );
+                }
               },
-            );
-          }
-        },
+            ),
+          ),
+          
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

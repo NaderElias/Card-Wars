@@ -37,7 +37,6 @@ class HandWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final handProvider = Provider.of<HandProvider>(context);
 
     int handSize = 6;
 

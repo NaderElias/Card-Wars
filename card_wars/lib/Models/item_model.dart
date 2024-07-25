@@ -1,7 +1,7 @@
 class Item {
    String name;
    String image;
-
+    
   Item({required this.name, required this.image});
 
   factory Item.fromMap(Map<String, dynamic> map) {

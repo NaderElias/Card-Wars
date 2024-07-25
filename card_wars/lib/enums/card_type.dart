@@ -1,0 +1,3 @@
+enum cardType{
+  monster,card;
+}

@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../models/item_model.dart';
 import '../providers/Base.dart';
 import '../providers/kards.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -75,6 +77,7 @@ class _HomeScreen extends State<HomeScreen> {
   }
 
   Widget _buildContent(String contentText) {
+   // final prefs = await SharedPreferences.getInstance();
     return Column(
       children: [
         AppBar(

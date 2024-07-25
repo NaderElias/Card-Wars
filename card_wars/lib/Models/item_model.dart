@@ -1,6 +1,6 @@
 class Item {
-  final String name;
-  final String image;
+   String name;
+   String image;
 
   Item({required this.name, required this.image});
 

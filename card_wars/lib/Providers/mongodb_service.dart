@@ -6,6 +6,9 @@ import 'package:mongo_dart/mongo_dart.dart';
 import '../models/item_model.dart';
 import '../models/game_model.dart';
 import '../models/user_model.dart';
+import 'package:crypto/crypto.dart'; // For hashing passwords
+import 'package:uuid/uuid.dart'; // For generating tokens
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MongoDBService {
   late final StreamController<List<Item>> _controller;
@@ -40,27 +43,41 @@ class MongoDBService {
 
 
 
-  Future<String> login(String user,String password) async {
+    Future<String> login(String username, String password) async {
     try {
-      
-      final userm = await _collection.find({
-        'username': user,
-        'password': password,
+      // Find the user by username and password
+      final user = await _collection.findOne({
+        'email': username,
+        'password': md5.convert(utf8.encode(password)).toString(), // Hash the password
       });
-      if(userm==null){print(userm);return '404';}
-      return '200';
+
+      if (user == null) {
+        return '404'; // User not found
+      }
+
+      // Generate a token
+      final token = Uuid().v4();
+      await _collection.update(
+        where.id(user['_id']),
+        modify.set('token', token),
+      );
+      storeToken(token);
+      return '200'; // Return the generated token
     } catch (e) {
-      print('Error inserting item: $e');
-      return '500';
+      print('Error logging in: $e');
+      return '500'; // Internal Server Error
     }
   }
+
 Future<void> register(User user) async {
-    try {
-      await _collection.insert(user.toMap());
-    } catch (e) {
-      print('Error inserting item: $e');
-    }
+  try {
+    // Hash the password before storing
+    user.password = md5.convert(utf8.encode(user.password)).toString();
+    await _collection.insert(user.toMap());
+  } catch (e) {
+    print('Error registering user: $e');
   }
+}
 
 
   Future<void> insertItem(Item item) async {
@@ -71,6 +88,15 @@ Future<void> register(User user) async {
 
   }
   catch(e){}}
+Future<bool> validateToken(String token) async {
+  try {
+    final user = await _collection.findOne({'token': token});
+    return user != null;
+  } catch (e) {
+    print('Error validating token: $e');
+    return false;
+  }
+}
 
 
   Future<void> insertGame(Game game) async {
@@ -81,6 +107,29 @@ Future<void> register(User user) async {
 
   }
   catch(e){}}
+  Future<void> storeToken(String token) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('auth_token', token);
+}
+
+Future<void> storeCookie(String cookie) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('auth_cookie', cookie);
+}
+  Future<bool> isSessionValid(String token) async {
+    try {
+      final user = await _collection.findOne({'token': token});
+      if (user == null) return false;
+
+      // Get the token creation time and check if it has expired
+      DateTime tokenCreation = user['tokenCreation'].toDate();
+      final expirationDuration = Duration(minutes: 30); // Session timeout duration
+      return DateTime.now().difference(tokenCreation) < expirationDuration;
+    } catch (e) {
+      print('Error checking session validity: $e');
+      return false;
+    }
+  }
   Future<Map<String, dynamic>?> getGame(String s) async {
     try {
        final objectId = ObjectId.parse(s); // Convert the string ID to ObjectId

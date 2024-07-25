@@ -10,12 +10,23 @@ import 'login.dart';
 import 'board.dart';
 import 'register.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final base = Base();
+  //base.initialize('user');
+  //final prefs = await SharedPreferences.getInstance();
+  //String? token = prefs.getString('auth_token');
+
+  //var isValid = await base.mongoDBService.isSessionValid(token!);
+  runApp(MyApp(true));
 }
 
 class MyApp extends StatelessWidget {
+  final isValid;
+  const MyApp(this.isValid, {super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -43,6 +54,16 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/',
           builder: (context, state) => LoginPage(),
+          redirect: (context, state) async {
+            if (isValid == null) {
+              return '/';
+            }
+            if (isValid) {
+              return '/cards';
+            }
+            // Redirect to login if token is not valid
+            return null; // Continue to the HomeScreen
+          },
         ),
         GoRoute(
           path: '/register',

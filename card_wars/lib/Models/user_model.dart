@@ -1,8 +1,8 @@
 class User {
-  final String name;
-  final String image;
-  final String email;
-  final String password;
+   String name;
+   String image;
+   String email;
+   String password;
   User({required this.name, required this.image,required this.email,required this.password});
 
   factory User.fromMap(Map<String, dynamic> map) {

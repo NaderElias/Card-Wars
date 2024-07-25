@@ -39,6 +39,7 @@ dependencies:
   mongo_dart: ^0.10.2
   image_picker: ^1.1.2
   go_router: ^14.1.4
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

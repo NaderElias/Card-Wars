@@ -8,10 +8,11 @@ import '../models/game_model.dart';
 import '../models/user_model.dart';
 import 'package:crypto/crypto.dart'; // For hashing passwords
 import 'package:uuid/uuid.dart'; // For generating tokens
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MongoDBService {
   late final StreamController<List<Item>> _controller;
+  final storage = FlutterSecureStorage();
   final String connectionString =
       'mongodb+srv://Finn:yt8750yg@cluster0.pv838z4.mongodb.net/CardWars?retryWrites=true&w=majority';
   late Db _db;
@@ -108,14 +109,14 @@ Future<bool> validateToken(String token) async {
   }
   catch(e){}}
   Future<void> storeToken(String token) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('auth_token', token);
+   await storage.write(key: 'auth_token', value: token);
+}
 }
 
-Future<void> storeCookie(String cookie) async {
+/*Future<void> storeCookie(String cookie) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('auth_cookie', cookie);
-}
+}*/
   Future<bool> isSessionValid(String token) async {
     try {
       final user = await _collection.findOne({'token': token});

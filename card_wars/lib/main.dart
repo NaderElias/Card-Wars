@@ -4,6 +4,7 @@ import 'models/item_model.dart';
 import 'providers/Base.dart';
 import 'providers/kards.dart';
 import 'providers/arena.dart';
+import 'providers/hand.dart';
 import 'home_screen.dart';
 import 'login.dart';
 import 'board.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => Base()),
         ChangeNotifierProvider(create: (context) => ItemsProvider()),
+        ChangeNotifierProvider(create: (context) => HandProvider()),
         ChangeNotifierProvider(create: (context) => ArenaProvider()),
         StreamProvider<List<Item>>(
           create: (context) => context.read<Base>().mongoDBService.itemsStream,

@@ -111,7 +111,8 @@ Future<bool> validateToken(String token) async {
   Future<void> storeToken(String token) async {
    await storage.write(key: 'auth_token', value: token);
 }
-}
+
+
 
 /*Future<void> storeCookie(String cookie) async {
   final prefs = await SharedPreferences.getInstance();

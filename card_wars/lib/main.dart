@@ -16,10 +16,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final base = Base();
-    final storage = FlutterSecureStorage();
-    var token=await storage.read(key: 'auth_token');
-    bool flag=false;
-    if(token==null){flag=false;}else{flag=true;}
+
+  final storage = FlutterSecureStorage();
+  var cookies = base.mongoDBService.readCookie();
+  bool flag = false;
+  if (cookies == null) {
+    flag = false;
+  } else {
+    flag = true;
+  }
   //base.initialize('user');
   //final prefs = await SharedPreferences.getInstance();
   //String? token = prefs.getString('auth_token');

@@ -18,8 +18,9 @@ void main() async {
   final base = Base();
 
   final storage = FlutterSecureStorage();
-  var cookies = base.mongoDBService.readCookie();
+  var cookies = await base.mongoDBService.readCookie();
   bool flag = false;
+  print('cookies:$cookies');
   if (cookies == null) {
     flag = false;
   } else {

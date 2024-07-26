@@ -18,6 +18,7 @@ class Item {
   bool canGoGrave; //can it be sent to the grave or destroyed?
   bool hasAbility; // does it have an ability?
   bool canUseAbility; //can it use it's ability?
+  bool needsCondition; // does it need to fullfil the condition to activate?
   bool canRevive; // can this card revive something?
   bool canBeRevived; //can this card be revived?
   bool canBeEquipped; // can it equip to other cards?
@@ -64,6 +65,7 @@ class Item {
     required this.canDie,
     required this.canKill,
     required this.canGoGrave,
+    required this.needsCondition,
     required this.hasAbility,
     required this.canUseAbility,
     required this.canRevive,
@@ -137,7 +139,7 @@ class Item {
       range: Rangen(map['range']['start'], map['range']['end']),
       targetNumber: List<int>.from(map['targetNumber']),
       targetType: List<CardType>.from(map['targetType']),
-      ability: List<Condition>.from(map['ability']),
+      ability: List<Condition>.from(map['ability']), needsCondition: map['needsCondition'],
     );
   }
 
@@ -152,6 +154,7 @@ class Item {
       'canDie': canDie,
       'canKill': canKill,
       'canGoGrave': canGoGrave,
+      'needsCondition':needsCondition,
       'hasAbility': hasAbility,
       'canUseAbility': canUseAbility,
       'canRevive': canRevive,

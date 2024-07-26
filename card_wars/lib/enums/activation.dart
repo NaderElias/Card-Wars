@@ -1,0 +1,4 @@
+enum Activation{
+  manual,
+  automatic;
+}

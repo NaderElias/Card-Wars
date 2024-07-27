@@ -7,6 +7,7 @@ class Player {
   int turns;
   List<Item> deck = [];
   List<Item> hand = [];
+  List<Item> grave = [];
 
   Player({
     required this.name,
@@ -15,6 +16,7 @@ class Player {
     required this.turns,
     required this.hand,
     required this.deck,
+    required this.grave,
   });
 
   factory Player.fromMap(Map<String, dynamic> map) {
@@ -25,6 +27,7 @@ class Player {
       turns: map['turns'],
       hand: (map['hand'] as List).map((item) => Item.fromMap(item)).toList(),
       deck: (map['deck'] as List).map((item) => Item.fromMap(item)).toList(),
+      grave: (map['grave'] as List).map((item) => Item.fromMap(item)).toList(),
     );
   }
 
@@ -36,6 +39,7 @@ class Player {
       'turns': turns,
       'hand': hand.map((item) => item.toMap()).toList(),
       'deck': deck.map((item) => item.toMap()).toList(),
+      'grave': grave.map((item) => item.toMap()).toList(),
     };
   }
 }

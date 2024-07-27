@@ -22,9 +22,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreen extends State<HomeScreen> {
-  // State to determine if we are showing buttons or content
   bool _showingContent = false;
-  Widget _drawerContent = Container(); // Placeholder for content widget
+  Widget _drawerContent = Container();
 
   @override
   void initState() {
@@ -76,13 +75,11 @@ class _HomeScreen extends State<HomeScreen> {
           title: Text('Option 3'),
           onTap: () => _showDrawerContent(_buildContent('Content for Option 3')),
         ),
-        // Add more options as needed
       ],
     );
   }
 
   Widget _buildContent(String contentText) {
-   // final prefs = await SharedPreferences.getInstance();
     return Column(
       children: [
         AppBar(
@@ -102,6 +99,74 @@ class _HomeScreen extends State<HomeScreen> {
         ),
       ],
     );
+  }
+
+  void _showItemDetails(Item item) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(item.name),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                _buildItemDetail('Turns', item.turns),
+                _buildItemDetail('Can Attack', item.canAttack),
+                _buildItemDetail('Can Defend', item.canDefend),
+                _buildItemDetail('Can Switch Defend', item.canSwitchDefend),
+                _buildItemDetail('Can Heal', item.canHeal),
+                _buildItemDetail('Can Die', item.canDie),
+                _buildItemDetail('Can Kill', item.canKill),
+                _buildItemDetail('Can Go Grave', item.canGoGrave),
+                _buildItemDetail('Has Ability', item.hasAbility),
+                _buildItemDetail('Can Use Ability', item.canUseAbility),
+                _buildItemDetail('Needs Condition', item.needsCondition),
+                _buildItemDetail('Can Revive', item.canRevive),
+                _buildItemDetail('Can Be Revived', item.canBeRevived),
+                _buildItemDetail('Can Be Equipped', item.canBeEquipped),
+                _buildItemDetail('Can have Equipped', item.canhaveEquipped),
+                _buildItemDetail('Can Equip Other', item.canequipOther),
+                _buildItemDetail('Is There ability Condition', item.isThereabilityCondition),
+                _buildItemDetail('HP', item.hp),
+                _buildItemDetail('Attack', item.attk),
+                _buildItemDetail('Defense', item.def),
+                _buildItemDetail('Heal', item.heal),
+                _buildItemDetail('Grave Amount', item.graveAmount),
+                _buildItemDetail('Hand Amount', item.handAmount),
+                _buildItemDetail('Ability Duration', item.abilityDuration),
+                _buildItemDetail('Ability Duration Repeat', item.abilityDurationRepeat),
+                _buildItemDetail('Equipped Number', item.equippedNumber),
+                _buildItemDetail('Has Effect On It', item.hasEffectOnIt),
+                _buildItemDetail('Effect Active', item.effectActive),
+                _buildItemDetail('Can Effect Be Applied On', item.canEffectBeAppliedOn),
+                _buildItemDetail('Can Use Effect', item.canUseEffect),
+                _buildItemDetail('Condition', item.condition.map((e) => e.toString()).join(', ')),
+                _buildItemDetail('Card Type', item.cardType.toString()),
+                _buildItemDetail('Activation', item.activation.toString()),
+                _buildItemDetail('Range', 'Start: ${item.range.start}, End: ${item.range.end}'),
+                _buildItemDetail('Target Number', item.targetNumber),
+                _buildItemDetail('Target Type', item.targetType.map((e) => e.toString()).join(', ')),
+                _buildItemDetail('Ability', item.ability.map((e) => e.toString()).join(', ')),
+              // ignore: unnecessary_null_comparison
+              ].where((element) => element != null).toList(), // Remove null entries
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildItemDetail(String title, dynamic value) {
+    if (value == null) return  value;
+    return Text('$title: $value');
   }
 
   @override
@@ -139,23 +204,57 @@ class _HomeScreen extends State<HomeScreen> {
                   return Center(child: Text('No items available'));
                 } else {
                   List<Item> items = snapshot.data!;
-                  itemsProvider.setItems(items);
+                  itemsProvider.setItems(items); //tempo remove later
 
-                  return ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      Uint8List imageBytes = base64Decode(items[index].image);
-                      return ListTile(
-                        title: Text(items[index].name),
-                        subtitle: Image.memory(imageBytes),
-                      );
-                    },
-                  );
+                return GridView.builder(
+  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 4,
+    childAspectRatio: 1,
+  ),
+  itemCount: items.length,
+  itemBuilder: (context, index) {
+    Uint8List imageBytes = base64Decode(items[index].image);
+    return GestureDetector(
+      onTap: () => _showItemDetails(items[index]),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12), // Adjust the radius as needed
+            child: Image.memory(
+              imageBytes,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black.withOpacity(0.6),
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Center(
+                child: Text(
+                  items[index].name,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  },
+);
+
                 }
               },
             ),
           ),
-          
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -167,49 +266,49 @@ class _HomeScreen extends State<HomeScreen> {
           if (pickedFile != null) {
             String base64Image =
                 await base.mongoDBService.encodeImageToBase64(pickedFile.path);
-             Item newItem = Item(
-    name: 'New Name',
-    image: base64Image,
-    canAttack: true,
-    canDefend: true,
-    canSwitchDefend: true,
-    canHeal: true,
-    canDie: true,
-    canKill: true,
-    canGoGrave: true,
-    hasAbility: true,
-    canUseAbility: true,
-    needsCondition: true,
-    canRevive: true,
-    canBeRevived: true,
-    canBeEquipped: true,
-    canhaveEquipped: true,
-    canequipOther: true,
-    isThereabilityCondition: true,
-    equippedCards: [],
-    hp: [10, 5, 3],
-    attk: [8, 4, 2],
-    def: [7, 3, 1],
-    heal: [5, 2, 1],
-    graveAmount: [2, 1, 0],
-    handAmount: [3, 2, 1],
-    abilityDuration: [3, 2, 1],
-    abilityDurationRepeat: 3,
-    turns: 0,
-    equippedNumber: [1, 0, 0],
-    hasEffectOnIt: false,
-    effectActive: false,
-    canEffectBeAppliedOn: true,
-    canUseEffect: true,
-    condition: [Condition.hp, Condition.attack],
-    cardType: CardType.monster,
-    activation: Activation.manual,
-    range: Rangen(0, 1),
-    target: [],
-    targetNumber: [1, 0],
-    targetType: [CardType.monster, CardType.player],
-    ability: [Condition.hp, Condition.defence],
-  );
+            Item newItem = Item(
+              name: 'New Name',
+              image: base64Image,
+              canAttack: true,
+              canDefend: true,
+              canSwitchDefend: true,
+              canHeal: true,
+              canDie: true,
+              canKill: true,
+              canGoGrave: true,
+              hasAbility: true,
+              canUseAbility: true,
+              needsCondition: true,
+              canRevive: true,
+              canBeRevived: true,
+              canBeEquipped: true,
+              canhaveEquipped: true,
+              canequipOther: true,
+              isThereabilityCondition: true,
+              equippedCards: [],
+              hp: [10, 5, 3],
+              attk: [8, 4, 2],
+              def: [7, 3, 1],
+              heal: [5, 2, 1],
+              graveAmount: [2, 1, 0],
+              handAmount: [3, 2, 1],
+              abilityDuration: [3, 2, 1],
+              abilityDurationRepeat: 3,
+              turns: 0,
+              equippedNumber: [1, 0, 0],
+              hasEffectOnIt: false,
+              effectActive: false,
+              canEffectBeAppliedOn: true,
+              canUseEffect: true,
+              condition: [Condition.hp, Condition.attack],
+              cardType: CardType.monster,
+              activation: Activation.manual,
+              range: Rangen(0, 1),
+              target: [],
+              targetNumber: [1, 0],
+              targetType: [CardType.monster, CardType.player],
+              ability: [Condition.hp, Condition.defence],
+            );
             await base.mongoDBService.insertItem(newItem);
             base.mongoDBService.fetchop();
           }

@@ -37,6 +37,7 @@ class Item {
   List<int>
       abilityDuration; // the duration of the ability in turns 1=> everyturn,2=> every two turns and so forth that's [0] ,[1] is a counter
   int abilityDurationRepeat; // the repeatition meaning if the counter exceeds then ability stop
+  int turns; // been alive for how many turns
   List<int> equippedNumber; // number of cards equiped to this one
   /////////////////////////////////////////////////////////////////////////////
   // OTHERS
@@ -47,7 +48,8 @@ class Item {
   List<Condition> condition; // the category of the condition
   CardType cardType; // the type of the card
   Activation activation; // the type of ability activation
-  Rangen range=Rangen(0, 0); // a range for when useful
+  Rangen range = Rangen(0, 0); // a range for when useful
+  List<Object> target; // the target [0] for ability,[1] for condition
   List<int>
       targetNumber; // [0] ability target number,[1] condition target number
   List<CardType>
@@ -75,9 +77,11 @@ class Item {
     required this.canequipOther,
     required this.isThereabilityCondition,
     required this.equippedCards,
-    required this.cardType ,
-    required this.activation ,
-    required this.range ,
+    required this.cardType,
+    required this.activation,
+    required this.range,
+    this.turns=0,
+    this.target = const [],
     this.hp = const [],
     this.attk = const [],
     this.def = const [],
@@ -92,9 +96,6 @@ class Item {
     this.canEffectBeAppliedOn = false,
     this.canUseEffect = false,
     this.condition = const [],
-    
-    
-    
     this.targetNumber = const [],
     this.targetType = const [],
     this.ability = const [],
@@ -102,6 +103,7 @@ class Item {
 
   factory Item.fromMap(Map<String, dynamic> map) {
     return Item(
+      turns:map['turns'],
       name: map['name'],
       image: map['image'],
       canAttack: map['canAttack'],
@@ -119,8 +121,10 @@ class Item {
       canhaveEquipped: map['canhaveEquipped'],
       canequipOther: map['canequipOther'],
       isThereabilityCondition: map['isThereabilityCondition'],
-      equippedCards: List<Item>.from(map['equippedCards'].map((x) => Item.fromMap(x))),
+      equippedCards:
+          List<Item>.from(map['equippedCards'].map((x) => Item.fromMap(x))),
       hp: List<int>.from(map['hp']),
+      target: List<Object>.from(map['target']),
       attk: List<int>.from(map['attk']),
       def: List<int>.from(map['def']),
       heal: List<int>.from(map['heal']),
@@ -139,12 +143,14 @@ class Item {
       range: Rangen(map['range']['start'], map['range']['end']),
       targetNumber: List<int>.from(map['targetNumber']),
       targetType: List<CardType>.from(map['targetType']),
-      ability: List<Condition>.from(map['ability']), needsCondition: map['needsCondition'],
+      ability: List<Condition>.from(map['ability']),
+      needsCondition: map['needsCondition'],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'turns':turns,
       'name': name,
       'image': image,
       'canAttack': canAttack,
@@ -154,7 +160,7 @@ class Item {
       'canDie': canDie,
       'canKill': canKill,
       'canGoGrave': canGoGrave,
-      'needsCondition':needsCondition,
+      'needsCondition': needsCondition,
       'hasAbility': hasAbility,
       'canUseAbility': canUseAbility,
       'canRevive': canRevive,
@@ -181,7 +187,7 @@ class Item {
       'cardType': cardType.index,
       'activation': activation.index,
       'range': {'start': range.start, 'end': range.end},
-       'targetNumber': targetNumber,
+      'targetNumber': targetNumber,
       'targetType': targetType.map((x) => x.index).toList(),
       'ability': ability,
     };

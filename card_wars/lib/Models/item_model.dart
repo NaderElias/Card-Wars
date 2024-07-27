@@ -103,7 +103,7 @@ class Item {
 
   factory Item.fromMap(Map<String, dynamic> map) {
     return Item(
-      turns:map['turns'],
+      turns: map['turns'],
       name: map['name'],
       image: map['image'],
       canAttack: map['canAttack'],
@@ -121,8 +121,8 @@ class Item {
       canhaveEquipped: map['canhaveEquipped'],
       canequipOther: map['canequipOther'],
       isThereabilityCondition: map['isThereabilityCondition'],
-      equippedCards:
-          List<Item>.from(map['equippedCards'].map((x) => Item.fromMap(x))),
+      equippedCards: List<Item>.from(
+          map['equippedCards']?.map((x) => Item.fromMap(x)) ?? []),
       hp: List<int>.from(map['hp']),
       target: List<Object>.from(map['target']),
       attk: List<int>.from(map['attk']),
@@ -137,20 +137,24 @@ class Item {
       effectActive: map['effectActive'],
       canEffectBeAppliedOn: map['canEffectBeAppliedOn'],
       canUseEffect: map['canUseEffect'],
-      condition: List<Condition>.from(map['condition']),
+      condition: List<Condition>.from(
+          map['condition']?.map((x) => Condition.values[x]) ?? []),
       cardType: CardType.values[map['cardType']],
       activation: Activation.values[map['activation']],
       range: Rangen(map['range']['start'], map['range']['end']),
       targetNumber: List<int>.from(map['targetNumber']),
-      targetType: List<CardType>.from(map['targetType']),
-      ability: List<Condition>.from(map['ability']),
+      targetType: List<CardType>.from(
+          map['targetType']?.map((x) => CardType.values[x]) ?? []),
+      ability: List<Condition>.from(
+          map['ability']?.map((x) => Condition.values[x]) ?? []),
       needsCondition: map['needsCondition'],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'turns':turns,
+      'target':target,
+      'turns': turns,
       'name': name,
       'image': image,
       'canAttack': canAttack,
@@ -183,13 +187,13 @@ class Item {
       'effectActive': effectActive,
       'canEffectBeAppliedOn': canEffectBeAppliedOn,
       'canUseEffect': canUseEffect,
-      'condition': condition,
+      'condition': condition.map((x) => x.index).toList(),
       'cardType': cardType.index,
       'activation': activation.index,
       'range': {'start': range.start, 'end': range.end},
       'targetNumber': targetNumber,
       'targetType': targetType.map((x) => x.index).toList(),
-      'ability': ability,
+      'ability': ability.map((x) => x.index).toList(),
     };
   }
 }

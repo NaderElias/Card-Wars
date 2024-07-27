@@ -7,6 +7,10 @@ import 'package:go_router/go_router.dart';
 import '../models/item_model.dart';
 import '../providers/Base.dart';
 import '../providers/kards.dart';
+import '../enums/condition.dart';
+import '../enums/card_type.dart';
+import '../enums/activation.dart';
+import '../classes/range.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -163,7 +167,49 @@ class _HomeScreen extends State<HomeScreen> {
           if (pickedFile != null) {
             String base64Image =
                 await base.mongoDBService.encodeImageToBase64(pickedFile.path);
-            Item newItem = Item(name: 'New Name', image: base64Image);
+             Item newItem = Item(
+    name: 'New Name',
+    image: base64Image,
+    canAttack: true,
+    canDefend: true,
+    canSwitchDefend: true,
+    canHeal: true,
+    canDie: true,
+    canKill: true,
+    canGoGrave: true,
+    hasAbility: true,
+    canUseAbility: true,
+    needsCondition: true,
+    canRevive: true,
+    canBeRevived: true,
+    canBeEquipped: true,
+    canhaveEquipped: true,
+    canequipOther: true,
+    isThereabilityCondition: true,
+    equippedCards: [],
+    hp: [10, 5, 3],
+    attk: [8, 4, 2],
+    def: [7, 3, 1],
+    heal: [5, 2, 1],
+    graveAmount: [2, 1, 0],
+    handAmount: [3, 2, 1],
+    abilityDuration: [3, 2, 1],
+    abilityDurationRepeat: 3,
+    turns: 0,
+    equippedNumber: [1, 0, 0],
+    hasEffectOnIt: false,
+    effectActive: false,
+    canEffectBeAppliedOn: true,
+    canUseEffect: true,
+    condition: [Condition.hp, Condition.attack],
+    cardType: CardType.monster,
+    activation: Activation.manual,
+    range: Rangen(0, 1),
+    target: [],
+    targetNumber: [1, 0],
+    targetType: [CardType.monster, CardType.player],
+    ability: [Condition.hp, Condition.defence],
+  );
             await base.mongoDBService.insertItem(newItem);
             base.mongoDBService.fetchop();
           }

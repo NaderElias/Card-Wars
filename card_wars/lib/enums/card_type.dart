@@ -1,3 +1,3 @@
 enum CardType{
-  monster,card;
+  monster,card,player;
 }

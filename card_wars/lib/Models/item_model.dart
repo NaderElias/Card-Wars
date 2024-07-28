@@ -25,7 +25,15 @@ class Item {
   bool canhaveEquipped; // can it have equipped cards?
   bool canequipOther; // can this card eqip  a card to another?\
   bool isThereabilityCondition; // is there a condituion for this ability?
+  bool effectValidFromGrave; // is the effect valid from the grave or not?
+  bool effectValidFromNone; // is the effect valied after beiong completely destroyed?
+  bool
+      isAbilityRev; // is the ability of this card's effects reversible after the duration ends?
+  List<bool>
+      isCurrentAbilityRev; //is the cuurent applied ability revesible each value corrosponds to the respective value in the item CARED EFFECT?
   List<Item> equippedCards; // the cards equuiped to this card
+  List<Item>
+      appliedEffectCards; // the cards thatapplied an eefect on this one // to be updated every time there's a change in the real card
   /////////////////////////////////TARGET OF THE ABILITY HAS IT"S OWN var////////////////////////////////////////////
   // AMOUNTS [0] is normal [1] for ability condition [2] ability amounts
   List<int> hp; // hitpoints
@@ -80,7 +88,14 @@ class Item {
     required this.cardType,
     required this.activation,
     required this.range,
-    this.turns=0,
+      required this. effectValidFromGrave, 
+  required this. effectValidFromNone, 
+required this.      isAbilityRev, 
+   this.
+      isCurrentAbilityRev= const[], 
+   this.
+      appliedEffectCards=const [],
+    this.turns = 0,
     this.target = const [],
     this.hp = const [],
     this.attk = const [],
@@ -101,105 +116,127 @@ class Item {
     this.ability = const [],
   });
 
- factory Item.fromMap(Map<String, dynamic> map) {
-  return Item(
-    turns: map['turns'] ?? 0,
-    name: map['name'] ?? '',
-    image: map['image'] ?? '',
-    canAttack: map['canAttack'] ?? false,
-    canDefend: map['canDefend'] ?? false,
-    canSwitchDefend: map['canSwitchDefend'] ?? false,
-    canHeal: map['canHeal'] ?? false,
-    canDie: map['canDie'] ?? false,
-    canKill: map['canKill'] ?? false,
-    canGoGrave: map['canGoGrave'] ?? false,
-    hasAbility: map['hasAbility'] ?? false,
-    canUseAbility: map['canUseAbility'] ?? false,
-    needsCondition: map['needsCondition'] ?? false,
-    canRevive: map['canRevive'] ?? false,
-    canBeRevived: map['canBeRevived'] ?? false,
-    canBeEquipped: map['canBeEquipped'] ?? false,
-    canhaveEquipped: map['canhaveEquipped'] ?? false,
-    canequipOther: map['canequipOther'] ?? false,
-    isThereabilityCondition: map['isThereabilityCondition'] ?? false,
-    equippedCards: map['equippedCards'] != null
-        ? List<Item>.from(map['equippedCards'].map((x) => Item.fromMap(x)))
-        : [],
-    hp: map['hp'] != null ? List<int>.from(map['hp']) : [],
-    target: map['target'] != null ? List<Object>.from(map['target']) : [],
-    attk: map['attk'] != null ? List<int>.from(map['attk']) : [],
-    def: map['def'] != null ? List<int>.from(map['def']) : [],
-    heal: map['heal'] != null ? List<int>.from(map['heal']) : [],
-    graveAmount: map['graveAmount'] != null ? List<int>.from(map['graveAmount']) : [],
-    handAmount: map['handAmount'] != null ? List<int>.from(map['handAmount']) : [],
-    abilityDuration: map['abilityDuration'] != null ? List<int>.from(map['abilityDuration']) : [],
-    abilityDurationRepeat: map['abilityDurationRepeat'] ?? 0,
-    equippedNumber: map['equippedNumber'] != null ? List<int>.from(map['equippedNumber']) : [],
-    hasEffectOnIt: map['hasEffectOnIt'] ?? false,
-    effectActive: map['effectActive'] ?? false,
-    canEffectBeAppliedOn: map['canEffectBeAppliedOn'] ?? false,
-    canUseEffect: map['canUseEffect'] ?? false,
-    condition: map['condition'] != null
-        ? List<Condition>.from(map['condition'].map((x) => Condition.values[x]))
-        : [],
-    cardType: map['cardType'] != null ? CardType.values[map['cardType']] : CardType.monster, // Default to Type1
-    activation: map['activation'] != null ? Activation.values[map['activation']] : Activation.manual, // Default to Activation1
-    range: map['range'] != null ? Rangen(map['range']['start'], map['range']['end']) : Rangen(0, 0), // Default to Rangen(0, 0)
-    targetNumber: map['targetNumber'] != null ? List<int>.from(map['targetNumber']) : [],
-    targetType: map['targetType'] != null
-        ? List<CardType>.from(map['targetType'].map((x) => CardType.values[x]))
-        : [],
-    ability: map['ability'] != null
-        ? List<Condition>.from(map['ability'].map((x) => Condition.values[x]))
-        : [],
-  );
-}
-
+  factory Item.fromMap(Map<String, dynamic> map) {
+    return Item(
+      turns: map['turns'] ?? 0,
+      name: map['name'] ?? '',
+      image: map['image'] ?? '',
+      canAttack: map['canAttack'] ?? false,
+      canDefend: map['canDefend'] ?? false,
+      canSwitchDefend: map['canSwitchDefend'] ?? false,
+      canHeal: map['canHeal'] ?? false,
+      canDie: map['canDie'] ?? false,
+      canKill: map['canKill'] ?? false,
+      canGoGrave: map['canGoGrave'] ?? false,
+      hasAbility: map['hasAbility'] ?? false,
+      canUseAbility: map['canUseAbility'] ?? false,
+      needsCondition: map['needsCondition'] ?? false,
+      canRevive: map['canRevive'] ?? false,
+      canBeRevived: map['canBeRevived'] ?? false,
+      canBeEquipped: map['canBeEquipped'] ?? false,
+      canhaveEquipped: map['canhaveEquipped'] ?? false,
+      canequipOther: map['canequipOther'] ?? false,
+      isThereabilityCondition: map['isThereabilityCondition'] ?? false,
+      equippedCards: map['equippedCards'] != null
+          ? List<Item>.from(map['equippedCards'].map((x) => Item.fromMap(x)))
+          : [],
+      hp: map['hp'] != null ? List<int>.from(map['hp']) : [],
+      target: map['target'] != null ? List<Object>.from(map['target']) : [],
+      attk: map['attk'] != null ? List<int>.from(map['attk']) : [],
+      def: map['def'] != null ? List<int>.from(map['def']) : [],
+      heal: map['heal'] != null ? List<int>.from(map['heal']) : [],
+      graveAmount:
+          map['graveAmount'] != null ? List<int>.from(map['graveAmount']) : [],
+      handAmount:
+          map['handAmount'] != null ? List<int>.from(map['handAmount']) : [],
+      abilityDuration: map['abilityDuration'] != null
+          ? List<int>.from(map['abilityDuration'])
+          : [],
+      abilityDurationRepeat: map['abilityDurationRepeat'] ?? 0,
+      equippedNumber: map['equippedNumber'] != null
+          ? List<int>.from(map['equippedNumber'])
+          : [],
+      hasEffectOnIt: map['hasEffectOnIt'] ?? false,
+      effectActive: map['effectActive'] ?? false,
+      canEffectBeAppliedOn: map['canEffectBeAppliedOn'] ?? false,
+      canUseEffect: map['canUseEffect'] ?? false,
+      condition: map['condition'] != null
+          ? List<Condition>.from(
+              map['condition'].map((x) => Condition.values[x]))
+          : [],
+      cardType: map['cardType'] != null
+          ? CardType.values[map['cardType']]
+          : CardType.monster, // Default to Type1
+      activation: map['activation'] != null
+          ? Activation.values[map['activation']]
+          : Activation.manual, // Default to Activation1
+      range: map['range'] != null
+          ? Rangen(map['range']['start'], map['range']['end'])
+          : Rangen(0, 0), // Default to Rangen(0, 0)
+      targetNumber: map['targetNumber'] != null
+          ? List<int>.from(map['targetNumber'])
+          : [],
+      targetType: map['targetType'] != null
+          ? List<CardType>.from(
+              map['targetType'].map((x) => CardType.values[x]))
+          : [],
+      ability: map['ability'] != null
+          ? List<Condition>.from(map['ability'].map((x) => Condition.values[x]))
+          : [],
+          isCurrentAbilityRev: map['isCurrentAbilityRev'] != null
+          ? List<bool>.from(map['equippedNumber'])
+          : [],
+          appliedEffectCards: map['appliedEffectCards'] != null
+          ? List<Item>.from(map['appliedEffectCards'])
+          : [], effectValidFromGrave: map['effectValidFromGrave'], effectValidFromNone: map['effectValidFromNone'], isAbilityRev: map['isAbilityRev'],
+    );
+  }
 
   Map<String, dynamic> toMap() {
-  return {
-    'turns': turns,
-    'name': name,
-    'image': image,
-    'canAttack': canAttack,
-    'canDefend': canDefend,
-    'canSwitchDefend': canSwitchDefend,
-    'canHeal': canHeal,
-    'canDie': canDie,
-    'canKill': canKill,
-    'canGoGrave': canGoGrave,
-    'needsCondition': needsCondition,
-    'hasAbility': hasAbility,
-    'canUseAbility': canUseAbility,
-    'canRevive': canRevive,
-    'canBeRevived': canBeRevived,
-    'canBeEquipped': canBeEquipped,
-    'canhaveEquipped': canhaveEquipped,
-    'canequipOther': canequipOther,
-    'isThereabilityCondition': isThereabilityCondition,
-    'equippedCards': equippedCards.map((x) => x.toMap()).toList(),
-    'hp': hp,
-    'attk': attk,
-    'def': def,
-    'heal': heal,
-    'graveAmount': graveAmount,
-    'handAmount': handAmount,
-    'abilityDuration': abilityDuration,
-    'abilityDurationRepeat': abilityDurationRepeat,
-    'equippedNumber': equippedNumber,
-    'hasEffectOnIt': hasEffectOnIt,
-    'effectActive': effectActive,
-    'canEffectBeAppliedOn': canEffectBeAppliedOn,
-    'canUseEffect': canUseEffect,
-    'condition': condition.map((x) => x.index).toList(),
-    'cardType': cardType.index,
-    'activation': activation.index,
-    'range': {'start': range.start, 'end': range.end},
-    'targetNumber': targetNumber,
-    'targetType': targetType.map((x) => x.index).toList(),
-    'ability': ability.map((x) => x.index).toList(),
-    'target': target, // Add target to toMap
-  };
-}
-
+    return {
+      'turns': turns,
+      'name': name,
+      'image': image,
+      'canAttack': canAttack,
+      'canDefend': canDefend,
+      'canSwitchDefend': canSwitchDefend,
+      'canHeal': canHeal,
+      'canDie': canDie,
+      'canKill': canKill,
+      'canGoGrave': canGoGrave,
+      'needsCondition': needsCondition,
+      'hasAbility': hasAbility,
+      'canUseAbility': canUseAbility,
+      'canRevive': canRevive,
+      'canBeRevived': canBeRevived,
+      'canBeEquipped': canBeEquipped,
+      'canhaveEquipped': canhaveEquipped,
+      'canequipOther': canequipOther,
+      'isThereabilityCondition': isThereabilityCondition,
+      'equippedCards': equippedCards.map((x) => x.toMap()).toList(),
+      'hp': hp,
+      'attk': attk,
+      'def': def,
+      'heal': heal,
+      'graveAmount': graveAmount,
+      'handAmount': handAmount,
+      'abilityDuration': abilityDuration,
+      'abilityDurationRepeat': abilityDurationRepeat,
+      'equippedNumber': equippedNumber,
+      'hasEffectOnIt': hasEffectOnIt,
+      'effectActive': effectActive,
+      'canEffectBeAppliedOn': canEffectBeAppliedOn,
+      'canUseEffect': canUseEffect,
+      'condition': condition.map((x) => x.index).toList(),
+      'cardType': cardType.index,
+      'activation': activation.index,
+      'range': {'start': range.start, 'end': range.end},
+      'targetNumber': targetNumber,
+      'targetType': targetType.map((x) => x.index).toList(),
+      'ability': ability.map((x) => x.index).toList(),
+      'isCurrentAbilityRev': isCurrentAbilityRev,
+      'appliedEffectCards': appliedEffectCards.map((x) => x.toMap()).toList(),
+      'target': target, // Add target to toMap
+    };
+  }
 }

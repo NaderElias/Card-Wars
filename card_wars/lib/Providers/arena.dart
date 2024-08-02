@@ -1,20 +1,23 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../models/item_model.dart';
 import 'Base.dart';
 import 'mongodb_service.dart';
 import '../providers/kards.dart';
+
 class ArenaProvider with ChangeNotifier {
   List<List<Item?>> _map = List.generate(
-    5,
+    4,
     (_) => List.generate(5, (_) => null),
   );
 
   List<List<Item?>> get map => _map;
-  int fcard=6;
+  int fcard = 6;
+  int? _elevatedRow;
+  int? _elevatedCol;
+
   void updateItem(int row, int col, Item? item) {
     _map[row][col] = item;
     notifyListeners();
@@ -31,22 +34,34 @@ class ArenaProvider with ChangeNotifier {
   Item? getItem(int row, int col) {
     return _map[row][col];
   }
+
+  int? get elevatedRow => _elevatedRow;
+  int? get elevatedCol => _elevatedCol;
+
+  void setElevatedCell(int? row, int? col) {
+    if (_elevatedRow == row && _elevatedCol == col) {
+      _elevatedRow = null; // Deselect if already elevated
+      _elevatedCol = null;
+    } else {
+      _elevatedRow = row;
+      _elevatedCol = col;
+    }
+    notifyListeners();
+  }
 }
 
 class ArenaWidget extends StatelessWidget {
   Item? onItemClicked = null;
 
   ArenaWidget({super.key});
-  
-
 
   @override
   Widget build(BuildContext context) {
     final itemsProvider = Provider.of<ItemsProvider>(context);
     final arenaProvider = Provider.of<ArenaProvider>(context);
 
-    int rows = arenaProvider._map.length;
-    int cols = arenaProvider._map[0].length;
+    int rows = arenaProvider.map.length;
+    int cols = arenaProvider.map[0].length;
 
     int itemIndex = 0;
     for (int row = 0; row < rows; row++) {
@@ -75,23 +90,31 @@ class ArenaWidget extends StatelessWidget {
                       for (var colIndex = 0; colIndex < arenaProvider.map[rowIndex].length; colIndex++)
                         GestureDetector(
                           onTap: () => _onCellTap(context, rowIndex, colIndex),
-                          child: Container(
-                            margin: EdgeInsets.all(4.0),
-                            width: 60,
-                            height: 90,
-                            decoration: BoxDecoration(
-                              color: arenaProvider.map[rowIndex][colIndex] == null
-                                  ? Colors.grey
-                                  : Colors.white,
-                              border: Border.all(color: Colors.black),
-                              borderRadius: BorderRadius.circular(8),
+                          child: AnimatedScale(
+                            scale: arenaProvider.elevatedRow == rowIndex && arenaProvider.elevatedCol == colIndex ? 1.2 : 1.0,
+                            duration: Duration(milliseconds: 300),
+                            child: AnimatedContainer(
+                              duration: Duration(milliseconds: 300),
+                              margin: EdgeInsets.all(4.0),
+                              width: 60,
+                              height: 90,
+                              decoration: BoxDecoration(
+                                color: arenaProvider.map[rowIndex][colIndex] == null
+                                    ? Colors.grey
+                                    : Colors.white,
+                                border: Border.all(color: Colors.black),
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: arenaProvider.elevatedRow == rowIndex && arenaProvider.elevatedCol == colIndex
+                                    ? [BoxShadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 8))]
+                                    : [],
+                              ),
+                              child: arenaProvider.map[rowIndex][colIndex] == null
+                                  ? null
+                                  : Image.memory(
+                                      base64Decode(arenaProvider.map[rowIndex][colIndex]!.image),
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
-                            child: arenaProvider.map[rowIndex][colIndex] == null
-                                ? null
-                                : Image.memory(
-                                    base64Decode(arenaProvider.map[rowIndex][colIndex]!.image),
-                                    fit: BoxFit.cover,
-                                  ),
                           ),
                         ),
                     ],
@@ -134,6 +157,8 @@ class ArenaWidget extends StatelessWidget {
 
   void _onCellTap(BuildContext context, int row, int col) {
     final arenaProvider = Provider.of<ArenaProvider>(context, listen: false);
+    arenaProvider.setElevatedCell(row, col);
+
     final item = arenaProvider.getItem(row, col);
 
     // Show Snackbar with item details
@@ -147,3 +172,9 @@ class ArenaWidget extends StatelessWidget {
     onItemClicked = item;
   }
 }
+
+        // Overlay Cards
+        
+     
+
+

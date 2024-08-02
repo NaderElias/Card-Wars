@@ -307,7 +307,7 @@ class _HomeScreen extends State<HomeScreen> {
               target: [],
               targetNumber: [1, 0],
               targetType: [CardType.monster, CardType.player],
-              ability: [Condition.hp, Condition.defence],
+              ability: [Condition.hp, Condition.defence], effectValidFromGrave: false, effectValidFromNone: false, isAbilityRev: false,
             );
             await base.mongoDBService.insertItem(newItem);
             base.mongoDBService.fetchop();

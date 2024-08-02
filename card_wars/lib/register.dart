@@ -90,7 +90,7 @@ final base = Provider.of<Base>(context, listen: false);
                     name: _nameController.text,
                     image: _base64Image ?? '',
                     email: _emailController.text,
-                    password: _passwordController.text,
+                    password: _passwordController.text, decks: [], friends: [],
                   );
                   base.mongoDBService.register(user);
                   context.go('/');

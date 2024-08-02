@@ -188,7 +188,7 @@ required this.      isAbilityRev,
           : [],
           appliedEffectCards: map['appliedEffectCards'] != null
           ? List<Item>.from(map['appliedEffectCards'])
-          : [], effectValidFromGrave: map['effectValidFromGrave'], effectValidFromNone: map['effectValidFromNone'], isAbilityRev: map['isAbilityRev'],
+          : [], effectValidFromGrave: map['effectValidFromGrave'] ?? false, effectValidFromNone: map['effectValidFromNone'] ?? false, isAbilityRev: map['isAbilityRev'] ?? false,
     );
   }
 
@@ -237,6 +237,9 @@ required this.      isAbilityRev,
       'isCurrentAbilityRev': isCurrentAbilityRev,
       'appliedEffectCards': appliedEffectCards.map((x) => x.toMap()).toList(),
       'target': target, // Add target to toMap
+      'effectValidFromGrave': effectValidFromGrave,
+      'effectValidFromNone': effectValidFromNone,
+      'isAbilityRev': isAbilityRev,
     };
   }
 }

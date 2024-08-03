@@ -24,7 +24,9 @@ class MongoDBService {
 
 
 
+  final _progressController = BehaviorSubject<double>.seeded(0);
 
+  Stream<double> get progressStream => _progressController.stream;
 
 
 
@@ -168,9 +170,18 @@ Future<Map<String, dynamic>?> readCookie() async {
 
   void fetchop() async {
   _loadingController.add(true);  // Start loading
+    _progressController.add(0);    // Reset progress
+
     try {
       final documents = await _collection.find().toList();
       final items = documents.map((doc) => Item.fromMap(doc)).toList();
+      
+      for (int i = 0; i < items.length; i++) {
+        // Simulate downloading each item
+        await Future.delayed(Duration(milliseconds: 50)); // Adjust the delay as needed
+        _progressController.add((i + 1) / items.length);
+      }
+
       _controller.add(items);
     } catch (e) {
       // Handle error
@@ -182,6 +193,7 @@ Future<Map<String, dynamic>?> readCookie() async {
 
   void dispose() {
     _loadingController.close();
+    _progressController.close();
     _controller.close();
     _db.close();
   }

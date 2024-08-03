@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:card_wars/Providers/hand.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/item_model.dart';
@@ -12,7 +13,8 @@ class ArenaProvider with ChangeNotifier {
     4,
     (_) => List.generate(5, (_) => null),
   );
-
+  Item? onItemClicked = null;
+  bool isCard = false;
   List<List<Item?>> get map => _map;
   int fcard = 6;
   int? _elevatedRow;
@@ -51,8 +53,6 @@ class ArenaProvider with ChangeNotifier {
 }
 
 class ArenaWidget extends StatelessWidget {
-  Item? onItemClicked = null;
-
   ArenaWidget({super.key});
 
   @override
@@ -70,7 +70,8 @@ class ArenaWidget extends StatelessWidget {
           arenaProvider._map[row][col] = itemsProvider.items[itemIndex];
           itemIndex++;
         } else {
-          arenaProvider._map[row][col] = null; // Default value if items are exhausted
+          arenaProvider._map[row][col] =
+              null; // Default value if items are exhausted
         }
       }
     }
@@ -83,15 +84,22 @@ class ArenaWidget extends StatelessWidget {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                for (var rowIndex = 0; rowIndex < arenaProvider.map.length; rowIndex++)
+                for (var rowIndex = 0;
+                    rowIndex < arenaProvider.map.length;
+                    rowIndex++)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      for (var colIndex = 0; colIndex < arenaProvider.map[rowIndex].length; colIndex++)
+                      for (var colIndex = 0;
+                          colIndex < arenaProvider.map[rowIndex].length;
+                          colIndex++)
                         GestureDetector(
                           onTap: () => _onCellTap(context, rowIndex, colIndex),
                           child: AnimatedScale(
-                            scale: arenaProvider.elevatedRow == rowIndex && arenaProvider.elevatedCol == colIndex ? 1.2 : 1.0,
+                            scale: arenaProvider.elevatedRow == rowIndex &&
+                                    arenaProvider.elevatedCol == colIndex
+                                ? 1.2
+                                : 1.0,
                             duration: Duration(milliseconds: 300),
                             child: AnimatedContainer(
                               duration: Duration(milliseconds: 300),
@@ -99,21 +107,31 @@ class ArenaWidget extends StatelessWidget {
                               width: 60,
                               height: 90,
                               decoration: BoxDecoration(
-                                color: arenaProvider.map[rowIndex][colIndex] == null
+                                color: arenaProvider.map[rowIndex][colIndex] ==
+                                        null
                                     ? Colors.grey
                                     : Colors.white,
                                 border: Border.all(color: Colors.black),
                                 borderRadius: BorderRadius.circular(8),
-                                boxShadow: arenaProvider.elevatedRow == rowIndex && arenaProvider.elevatedCol == colIndex
-                                    ? [BoxShadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 8))]
+                                boxShadow: arenaProvider.elevatedRow ==
+                                            rowIndex &&
+                                        arenaProvider.elevatedCol == colIndex
+                                    ? [
+                                        BoxShadow(
+                                            color: Colors.black54,
+                                            blurRadius: 8,
+                                            offset: Offset(0, 8))
+                                      ]
                                     : [],
                               ),
-                              child: arenaProvider.map[rowIndex][colIndex] == null
-                                  ? null
-                                  : Image.memory(
-                                      base64Decode(arenaProvider.map[rowIndex][colIndex]!.image),
-                                      fit: BoxFit.cover,
-                                    ),
+                              child:
+                                  arenaProvider.map[rowIndex][colIndex] == null
+                                      ? null
+                                      : Image.memory(
+                                          base64Decode(arenaProvider
+                                              .map[rowIndex][colIndex]!.image),
+                                          fit: BoxFit.cover,
+                                        ),
                             ),
                           ),
                         ),
@@ -133,9 +151,11 @@ class ArenaWidget extends StatelessWidget {
             children: [
               for (int i = 0; i < arenaProvider.fcard; i++)
                 Transform.translate(
-                  offset: Offset(i * 4.0 - 12, 0), // Adjust the offset for overlapping effect
+                  offset: Offset(i * 4.0 - 12,
+                      0), // Adjust the offset for overlapping effect
                   child: Transform.rotate(
-                    angle: (i - 2.5) * 0.02, // Adjust the angle for slight fan effect
+                    angle: (i - 2.5) *
+                        0.02, // Adjust the angle for slight fan effect
                     child: Container(
                       margin: EdgeInsets.symmetric(horizontal: 2.0),
                       width: 60,
@@ -157,6 +177,20 @@ class ArenaWidget extends StatelessWidget {
 
   void _onCellTap(BuildContext context, int row, int col) {
     final arenaProvider = Provider.of<ArenaProvider>(context, listen: false);
+    var handProvider = Provider.of<HandProvider>(context, listen: false);
+    if (handProvider.onItemClicked != null) {
+      if (arenaProvider._map[row][col] == null) {
+        arenaProvider._map[row][col] = handProvider.onItemClicked;
+      }
+      handProvider.onItemClicked = null;
+      handProvider._elevatedCardIndex = null;
+      handProvider.setElevatedCard(handProvider.indexo as int);
+
+      if (handProvider.indexo! < handProvider.hand.length) {
+        final item = handProvider.hand[handProvider.indexo as int ];
+      }
+      return;
+    }
     arenaProvider.setElevatedCell(row, col);
 
     final item = arenaProvider.getItem(row, col);
@@ -164,17 +198,12 @@ class ArenaWidget extends StatelessWidget {
     // Show Snackbar with item details
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(item != null ? 'Item: ${item.name}' : 'No item in this cell'),
+        content:
+            Text(item != null ? 'Item: ${item.name}' : 'No item in this cell'),
       ),
     );
 
     // Optional: set `onItemClicked` if needed
-    onItemClicked = item;
+    arenaProvider.onItemClicked = item;
   }
 }
-
-        // Overlay Cards
-        
-     
-
-

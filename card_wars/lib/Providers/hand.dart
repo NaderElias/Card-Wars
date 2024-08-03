@@ -10,9 +10,12 @@ import "../providers/kards.dart";
 class HandProvider extends ChangeNotifier {
   List<Item> _hand = [];
   int? _elevatedCardIndex;
-
+  Item? onItemClicked = null;
+  int? indexo;
   List<Item> get hand => _hand;
   int? get elevatedCardIndex => _elevatedCardIndex;
+
+
 
   void addItem(Item item) {
     if (_hand.length < 6) {
@@ -42,8 +45,6 @@ class HandProvider extends ChangeNotifier {
 }
 
 class HandWidget extends StatelessWidget {
-  Item? onItemClicked = null;
-
   HandWidget({super.key});
 
   @override
@@ -69,11 +70,18 @@ class HandWidget extends StatelessWidget {
                     width: 60,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: i < handProvider.hand.length ? Colors.white : Color.fromARGB(255, 3, 230, 59),
+                      color: i < handProvider.hand.length
+                          ? Colors.white
+                          : Color.fromARGB(255, 3, 230, 59),
                       border: Border.all(color: Colors.black),
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: i == handProvider.elevatedCardIndex
-                          ? [BoxShadow(color: Colors.black54, blurRadius: 8, offset: Offset(0, 8))]
+                          ? [
+                              BoxShadow(
+                                  color: Colors.black54,
+                                  blurRadius: 8,
+                                  offset: Offset(0, 8))
+                            ]
                           : [],
                     ),
                     child: i < handProvider.hand.length
@@ -93,6 +101,7 @@ class HandWidget extends StatelessWidget {
 
   void _onCardTap(BuildContext context, int index) {
     final handProvider = Provider.of<HandProvider>(context, listen: false);
+    handProvider.indexo = index;
     handProvider.setElevatedCard(index);
 
     if (index < handProvider.hand.length) {
@@ -106,7 +115,7 @@ class HandWidget extends StatelessWidget {
       );
 
       // Optional: set `onItemClicked` if needed
-      onItemClicked = item;
+      handProvider.onItemClicked = item;
     } else {
       // Show Snackbar if no item
       ScaffoldMessenger.of(context).showSnackBar(

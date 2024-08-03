@@ -15,7 +15,9 @@ class HandProvider extends ChangeNotifier {
   List<Item> get hand => _hand;
   int? get elevatedCardIndex => _elevatedCardIndex;
 
-
+  void SetElevatedCardIndex(int x) {
+    _elevatedCardIndex = x;
+  }
 
   void addItem(Item item) {
     if (_hand.length < 6) {

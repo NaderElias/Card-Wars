@@ -175,146 +175,158 @@ class _HomeScreen extends State<HomeScreen> {
     final itemsProvider = Provider.of<ItemsProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Database Items'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              context.go('/arena');
-            },
-          ),
-        ],
+  appBar: AppBar(
+    title: const Text('Database Items'),
+    actions: [
+      IconButton(
+        icon: Icon(Icons.refresh),
+        onPressed: () {
+          context.go('/arena');
+        },
       ),
-      drawer: Drawer(
-        child: _showingContent ? _drawerContent : _buildDrawerButtons(),
-      ),
-      body: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: StreamBuilder<List<Item>>(
-              stream: base.mongoDBService.itemsStream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No items available'));
-                } else {
-                  List<Item> items = snapshot.data!;
-                  itemsProvider.setItems(items); //tempo remove later
-
-                return GridView.builder(
-  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 4,
-    childAspectRatio: 1,
+    ],
   ),
-  itemCount: items.length,
-  itemBuilder: (context, index) {
-    Uint8List imageBytes = base64Decode(items[index].image);
-    return GestureDetector(
-      onTap: () => _showItemDetails(items[index]),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12), // Adjust the radius as needed
-            child: Image.memory(
-              imageBytes,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              color: Colors.black.withOpacity(0.6),
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Center(
-                child: Text(
-                  items[index].name,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  },
-);
-
-                }
-              },
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final picker = ImagePicker();
-          final pickedFile =
-              await picker.pickImage(source: ImageSource.gallery);
-
-          if (pickedFile != null) {
-            String base64Image =
-                await base.mongoDBService.encodeImageToBase64(pickedFile.path);
-            Item newItem = Item(
-              name: 'New Name',
-              image: base64Image,
-              canAttack: true,
-              canDefend: true,
-              canSwitchDefend: true,
-              canHeal: true,
-              canDie: true,
-              canKill: true,
-              canGoGrave: true,
-              hasAbility: true,
-              canUseAbility: true,
-              needsCondition: true,
-              canRevive: true,
-              canBeRevived: true,
-              canBeEquipped: true,
-              canhaveEquipped: true,
-              canequipOther: true,
-              isThereabilityCondition: true,
-              equippedCards: [],
-              hp: [10, 5, 3],
-              attk: [8, 4, 2],
-              def: [7, 3, 1],
-              heal: [5, 2, 1],
-              graveAmount: [2, 1, 0],
-              handAmount: [3, 2, 1],
-              abilityDuration: [3, 2, 1],
-              abilityDurationRepeat: 3,
-              turns: 0,
-              equippedNumber: [1, 0, 0],
-              hasEffectOnIt: false,
-              effectActive: false,
-              canEffectBeAppliedOn: true,
-              canUseEffect: true,
-              condition: [Condition.hp, Condition.attack],
-              cardType: CardType.monster,
-              activation: Activation.manual,
-              range: Rangen(0, 1),
-              target: [],
-              targetNumber: [1, 0],
-              targetType: [CardType.monster, CardType.player],
-              ability: [Condition.hp, Condition.defence], effectValidFromGrave: false, effectValidFromNone: false, isAbilityRev: false,
-            );
-            await base.mongoDBService.insertItem(newItem);
-            base.mongoDBService.fetchop();
+  drawer: Drawer(
+    child: _showingContent ? _drawerContent : _buildDrawerButtons(),
+  ),
+  body: Column(
+    children: [
+      StreamBuilder<bool>(
+        stream: base.mongoDBService.isLoading,
+        builder: (context, snapshot) {
+          if (snapshot.data == true) {
+            return LinearProgressIndicator();
+          } else {
+            return Container(); // Empty container if not loading
           }
         },
-        child: const Icon(Icons.add),
       ),
-    );
+      Expanded(
+        child: StreamBuilder<List<Item>>(
+          stream: base.mongoDBService.itemsStream,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No items available'));
+            } else {
+              List<Item> items = snapshot.data!;
+              itemsProvider.setItems(items); //tempo remove later
+
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  childAspectRatio: 1,
+                ),
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  Uint8List imageBytes = base64Decode(items[index].image);
+                  return GestureDetector(
+                    onTap: () => _showItemDetails(items[index]),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12), // Adjust the radius as needed
+                          child: Image.memory(
+                            imageBytes,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            color: Colors.black.withOpacity(0.6),
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Center(
+                              child: Text(
+                                items[index].name,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }
+          },
+        ),
+      ),
+    ],
+  ),
+  floatingActionButton: FloatingActionButton(
+    onPressed: () async {
+      final picker = ImagePicker();
+      final pickedFile =
+          await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        String base64Image =
+            await base.mongoDBService.encodeImageToBase64(pickedFile.path);
+        Item newItem = Item(
+          name: 'New Name',
+          image: base64Image,
+          canAttack: true,
+          canDefend: true,
+          canSwitchDefend: true,
+          canHeal: true,
+          canDie: true,
+          canKill: true,
+          canGoGrave: true,
+          hasAbility: true,
+          canUseAbility: true,
+          needsCondition: true,
+          canRevive: true,
+          canBeRevived: true,
+          canBeEquipped: true,
+          canhaveEquipped: true,
+          canequipOther: true,
+          isThereabilityCondition: true,
+          equippedCards: [],
+          hp: [10, 5, 3],
+          attk: [8, 4, 2],
+          def: [7, 3, 1],
+          heal: [5, 2, 1],
+          graveAmount: [2, 1, 0],
+          handAmount: [3, 2, 1],
+          abilityDuration: [3, 2, 1],
+          abilityDurationRepeat: 3,
+          turns: 0,
+          equippedNumber: [1, 0, 0],
+          hasEffectOnIt: false,
+          effectActive: false,
+          canEffectBeAppliedOn: true,
+          canUseEffect: true,
+          condition: [Condition.hp, Condition.attack],
+          cardType: CardType.monster,
+          activation: Activation.manual,
+          range: Rangen(0, 1),
+          target: [],
+          targetNumber: [1, 0],
+          targetType: [CardType.monster, CardType.player],
+          ability: [Condition.hp, Condition.defence],
+          effectValidFromGrave: false,
+          effectValidFromNone: false,
+          isAbilityRev: false,
+        );
+        await base.mongoDBService.insertItem(newItem);
+        base.mongoDBService.fetchop();
+      }
+    },
+    child: const Icon(Icons.add),
+  ),
+);
+
   }
 }

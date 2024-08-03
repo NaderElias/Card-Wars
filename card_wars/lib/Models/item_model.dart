@@ -184,7 +184,7 @@ required this.      isAbilityRev,
           ? List<Condition>.from(map['ability'].map((x) => Condition.values[x]))
           : [],
           isCurrentAbilityRev: map['isCurrentAbilityRev'] != null
-          ? List<bool>.from(map['equippedNumber'])
+          ? List<bool>.from(map['isCurrentAbilityRev'])
           : [],
           appliedEffectCards: map['appliedEffectCards'] != null
           ? List<Item>.from(map['appliedEffectCards'])

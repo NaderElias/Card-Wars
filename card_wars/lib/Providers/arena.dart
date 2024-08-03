@@ -183,7 +183,7 @@ class ArenaWidget extends StatelessWidget {
         arenaProvider._map[row][col] = handProvider.onItemClicked;
       }
       handProvider.onItemClicked = null;
-      handProvider._elevatedCardIndex = null;
+      handProvider.SetElevatedCardIndex(null as int);
       handProvider.setElevatedCard(handProvider.indexo as int);
 
       if (handProvider.indexo! < handProvider.hand.length) {

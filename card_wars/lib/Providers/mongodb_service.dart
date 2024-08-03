@@ -9,6 +9,7 @@ import '../models/user_model.dart';
 import 'package:crypto/crypto.dart'; // For hashing passwords
 import 'package:uuid/uuid.dart'; // For generating tokens
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:rxdart/rxdart.dart';
 
 class MongoDBService {
   late final StreamController<List<Item>> _controller;
@@ -17,6 +18,15 @@ class MongoDBService {
       'mongodb+srv://Finn:yt8750yg@cluster0.pv838z4.mongodb.net/CardWars?retryWrites=true&w=majority';
   late Db _db;
   late DbCollection _collection;
+   final _loadingController = BehaviorSubject<bool>.seeded(false);
+
+  Stream<bool> get isLoading => _loadingController.stream;
+
+
+
+
+
+
 
   MongoDBService(String col) {
     _controller = StreamController<List<Item>>();
@@ -157,12 +167,21 @@ Future<Map<String, dynamic>?> readCookie() async {
   Stream<List<Item>> get itemsStream => _controller.stream;
 
   void fetchop() async {
-    final documents = await _collection.find().toList();
-    final items = documents.map((doc) => Item.fromMap(doc)).toList();
-    _controller.add(items);
+  _loadingController.add(true);  // Start loading
+    try {
+      final documents = await _collection.find().toList();
+      final items = documents.map((doc) => Item.fromMap(doc)).toList();
+      _controller.add(items);
+    } catch (e) {
+      // Handle error
+      print(e);
+    } finally {
+      _loadingController.add(false);  // End loading
+    }
   }
 
   void dispose() {
+    _loadingController.close();
     _controller.close();
     _db.close();
   }

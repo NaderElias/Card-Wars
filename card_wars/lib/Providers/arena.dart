@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:card_wars/Providers/hand.dart';
+import 'package:card_wars/providers/hand.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/item_model.dart';
@@ -181,13 +181,14 @@ class ArenaWidget extends StatelessWidget {
     if (handProvider.onItemClicked != null) {
       if (arenaProvider._map[row][col] == null) {
         arenaProvider._map[row][col] = handProvider.onItemClicked;
+        handProvider.hand[handProvider.indexo as int] = null;
       }
       handProvider.onItemClicked = null;
-      handProvider.SetElevatedCardIndex(null as int);
-      handProvider.setElevatedCard(handProvider.indexo as int);
+      handProvider.SetElevatedCardIndex(-1);
+      handProvider.setElevatedCard(-1);
 
       if (handProvider.indexo! < handProvider.hand.length) {
-        final item = handProvider.hand[handProvider.indexo as int ];
+        final item = handProvider.hand[handProvider.indexo as int];
       }
       return;
     }
@@ -198,8 +199,9 @@ class ArenaWidget extends StatelessWidget {
     // Show Snackbar with item details
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content:
-            Text(item != null ? 'Item: ${item.name}' : 'No item in this cell'),
+        content: Text(handProvider.onItemClicked != null
+            ? 'Item: ${handProvider.onItemClicked}'
+            : 'No item in this cell'),
       ),
     );
 

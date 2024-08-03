@@ -8,14 +8,15 @@ import 'mongodb_service.dart';
 import "../providers/kards.dart";
 
 class HandProvider extends ChangeNotifier {
-  List<Item> _hand = [];
+  List<Item?> _hand = [];
   int? _elevatedCardIndex;
   Item? onItemClicked = null;
   int? indexo;
-  List<Item> get hand => _hand;
+  List<Item?> get hand => _hand;
   int? get elevatedCardIndex => _elevatedCardIndex;
 
   void SetElevatedCardIndex(int x) {
+    if(x<0){return;}
     _elevatedCardIndex = x;
   }
 
@@ -37,6 +38,7 @@ class HandProvider extends ChangeNotifier {
   }
 
   void setElevatedCard(int index) {
+    if(index<0){return;}
     if (_elevatedCardIndex == index) {
       _elevatedCardIndex = null; // Deselect if already elevated
     } else {
@@ -88,7 +90,7 @@ class HandWidget extends StatelessWidget {
                     ),
                     child: i < handProvider.hand.length
                         ? Image.memory(
-                            base64Decode(handProvider.hand[i].image),
+                            base64Decode(handProvider.hand[i]!.image),
                             fit: BoxFit.cover,
                           )
                         : null,
@@ -112,7 +114,7 @@ class HandWidget extends StatelessWidget {
       // Show Snackbar with item details
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Item: ${item.name}'),
+          content: Text('Item: ${item?.name}'),
         ),
       );
 

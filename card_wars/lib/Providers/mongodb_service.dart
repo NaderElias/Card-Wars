@@ -18,17 +18,13 @@ class MongoDBService {
       'mongodb+srv://Finn:yt8750yg@cluster0.pv838z4.mongodb.net/CardWars?retryWrites=true&w=majority';
   late Db _db;
   late DbCollection _collection;
-   final _loadingController = BehaviorSubject<bool>.seeded(false);
+  final _loadingController = BehaviorSubject<bool>.seeded(false);
 
   Stream<bool> get isLoading => _loadingController.stream;
-
-
 
   final _progressController = BehaviorSubject<double>.seeded(0);
 
   Stream<double> get progressStream => _progressController.stream;
-
-
 
   MongoDBService(String col) {
     _controller = StreamController<List<Item>>();
@@ -65,7 +61,7 @@ class MongoDBService {
 
       // Generate a token
       final token = Uuid().v4();
-     var usero= await _collection.update(
+      var usero = await _collection.update(
           where.id(user['_id']),
           modify
               .set('token', token)
@@ -117,23 +113,25 @@ class MongoDBService {
     await storage.write(key: 'auth_token', value: token);
   }
 
- Future<void> storeCookie(Map<String, dynamic>? cookie) async {
-  if (cookie != null) {
-    String jsonString = jsonEncode(cookie); // Convert map to JSON string
-    await storage.write(key: 'cookie', value: jsonString);
-  } else {
-    await storage.delete(key: 'cookie'); // Optionally delete if cookie is null
+  Future<void> storeCookie(Map<String, dynamic>? cookie) async {
+    if (cookie != null) {
+      String jsonString = jsonEncode(cookie); // Convert map to JSON string
+      await storage.write(key: 'cookie', value: jsonString);
+    } else {
+      await storage.delete(
+          key: 'cookie'); // Optionally delete if cookie is null
+    }
   }
-}
 
-Future<Map<String, dynamic>?> readCookie() async {
-  String? jsonString = await storage.read(key: 'cookie');
-  if (jsonString != null) {
-    return jsonDecode(jsonString); // Convert JSON string back to Map
-  } else {
-    return null; // No cookie found
+  Future<Map<String, dynamic>?> readCookie() async {
+    String? jsonString = await storage.read(key: 'cookie');
+    if (jsonString != null) {
+      return jsonDecode(jsonString); // Convert JSON string back to Map
+    } else {
+      return null; // No cookie found
+    }
   }
-}
+
   Future<bool> isSessionValid(String token) async {
     try {
       final user = await _collection.findOne({'token': token});
@@ -167,18 +165,76 @@ Future<Map<String, dynamic>?> readCookie() async {
   }
 
   Stream<List<Item>> get itemsStream => _controller.stream;
+ Future<Item?> fetchLatestMongoItem() async {
+  try {
+    final pipeline = [
+      {
+        // Group by some criteria (e.g., by item ID or other fields) and get the latest document
+        '\$sort': {'date': -1}, // Sort by date in descending order
+      },
+      {
+        // Limit to 1 document to get the latest one
+        '\$limit': 1,
+      }
+    ];
+
+    // Run aggregation pipeline
+    final result = await _collection.aggregate(pipeline).;
+
+    if (result.isNotEmpty) {
+      return Item.fromMap(result.first);
+    }
+    return null; // Return null if no items are found
+  } catch (e) {
+    print('Error fetching latest MongoDB item: $e');
+    return null;
+  }
+}
+
+
+  Future<Item?> fetchLatestSQLiteItem() async {
+    try {
+      final Database db = await SQLiteService().database;
+      final List<Map<String, dynamic>> newestSqliteMap = await db.query(
+        'items',
+        orderBy: 'date DESC',
+        limit: 1,
+      );
+      if (newestSqliteMap.isNotEmpty) {
+        return Item.fromMap(newestSqliteMap.first);
+      }
+    } catch (e) {
+      print('Error fetching latest SQLite item: $e');
+    }
+    return null;
+  }
 
   void fetchop() async {
-  _loadingController.add(true);  // Start loading
-    _progressController.add(0);    // Reset progress
+    // Fetch the latest entry from MongoDB
+    final latestMongoItem = await fetchLatestMongoItem();
+    if (latestMongoItem != null) {
+      print(
+          'Latest MongoDB item: ${latestMongoItem.name}, Date: ${latestMongoItem.date}');
+    }
+
+    // Fetch the latest entry from SQLite
+    final latestSQLiteItem = await fetchLatestSQLiteItem();
+    if (latestSQLiteItem != null) {
+      print(
+          'Latest SQLite item: ${latestSQLiteItem.name}, Date: ${latestSQLiteItem.date}');
+    }
+
+    _loadingController.add(true); // Start loading
+    _progressController.add(0); // Reset progress
 
     try {
       final documents = await _collection.find().toList();
       final items = documents.map((doc) => Item.fromMap(doc)).toList();
-      
+
       for (int i = 0; i < items.length; i++) {
         // Simulate downloading each item
-        await Future.delayed(Duration(milliseconds: 50)); // Adjust the delay as needed
+        await Future.delayed(
+            Duration(milliseconds: 50)); // Adjust the delay as needed
         _progressController.add((i + 1) / items.length);
       }
 
@@ -187,7 +243,7 @@ Future<Map<String, dynamic>?> readCookie() async {
       // Handle error
       print(e);
     } finally {
-      _loadingController.add(false);  // End loading
+      _loadingController.add(false); // End loading
     }
   }
 

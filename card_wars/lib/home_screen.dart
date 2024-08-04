@@ -321,7 +321,7 @@ return Scaffold(
               target: [],
               targetNumber: [1, 0],
               targetType: [CardType.monster, CardType.player],
-              ability: [Condition.hp, Condition.defence], effectValidFromGrave: false, effectValidFromNone: false, isAbilityRev: false,
+              ability: [Condition.hp, Condition.defence], effectValidFromGrave: false, effectValidFromNone: false, isAbilityRev: false, date: DateTime.now(), id: null,
             );
             await base.mongoDBService.insertItem(newItem);
             base.mongoDBService.fetchop();

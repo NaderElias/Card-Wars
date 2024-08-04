@@ -5,6 +5,7 @@ import 'providers/Base.dart';
 import 'providers/kards.dart';
 import 'providers/arena.dart';
 import 'providers/hand.dart';
+import 'providers/sql_lite_service.dart';
 import 'home_screen.dart';
 import 'login.dart';
 import 'board.dart';
@@ -31,6 +32,7 @@ void main() async {
   //String? token = prefs.getString('auth_token');
 
   //var isValid = await base.mongoDBService.isSessionValid(token!);
+  await SQLiteService().database;
   runApp(MyApp(flag));
 }
 
@@ -50,6 +52,7 @@ class MyApp extends StatelessWidget {
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
           initialData: const [],
         ),
+        ChangeNotifierProvider(create: (context) => SQLiteService()),
       ],
       child: MaterialApp.router(
         title: 'Your App Title',

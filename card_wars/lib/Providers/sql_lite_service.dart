@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/item_model.dart';  // Ensure you have the Item model file in the correct path
 
-class SQLiteService {
+class SQLiteService with ChangeNotifier{
   static final SQLiteService _instance = SQLiteService._internal();
   static Database? _database;
 

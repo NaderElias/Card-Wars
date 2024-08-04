@@ -7,6 +7,7 @@ import '../classes/range.dart';
 
 class Item {
   // REQUIRED
+  String? id;
   String name; //name
   String image; // image
   bool canAttack; //can this card attack another card?
@@ -64,6 +65,7 @@ class Item {
       targetType; // [0] ability target type,[1] condition target type
   List<Condition> ability; // the ability
 //// the hp condition will be done as the condition target and effect target will be
+  DateTime date; // the date so that i don't retrieve the entire base
 // Constructor with required parameters
   Item({
     required this.name,
@@ -91,6 +93,7 @@ class Item {
       required this. effectValidFromGrave, 
   required this. effectValidFromNone, 
 required this.      isAbilityRev, 
+required this. date,
    this.
       isCurrentAbilityRev= const[], 
    this.
@@ -113,12 +116,13 @@ required this.      isAbilityRev,
     this.condition = const [],
     this.targetNumber = const [],
     this.targetType = const [],
-    this.ability = const [],
+    this.ability = const [], required id,
   });
 
   factory Item.fromMap(Map<String, dynamic> map) {
     return Item(
-      turns: map['turns'] ?? 0,
+      id: map['_id']
+,      turns: map['turns'] ?? 0,
       name: map['name'] ?? '',
       image: map['image'] ?? '',
       canAttack: map['canAttack'] ?? false,
@@ -137,6 +141,7 @@ required this.      isAbilityRev,
       canhaveEquipped: map['canhaveEquipped'] ?? false,
       canequipOther: map['canequipOther'] ?? false,
       isThereabilityCondition: map['isThereabilityCondition'] ?? false,
+      date: map['date'] ?? DateTime.now(),
       equippedCards: map['equippedCards'] != null
           ? List<Item>.from(map['equippedCards'].map((x) => Item.fromMap(x)))
           : [],
@@ -213,6 +218,7 @@ required this.      isAbilityRev,
       'canhaveEquipped': canhaveEquipped,
       'canequipOther': canequipOther,
       'isThereabilityCondition': isThereabilityCondition,
+      'date':date,
       'equippedCards': equippedCards.map((x) => x.toMap()).toList(),
       'hp': hp,
       'attk': attk,

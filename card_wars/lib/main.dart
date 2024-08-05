@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (context) => SQLiteService()),
         ChangeNotifierProvider(create: (context) => Base()),
         ChangeNotifierProvider(create: (context) => ItemsProvider()),
         ChangeNotifierProvider(create: (context) => HandProvider()),
@@ -52,7 +53,7 @@ class MyApp extends StatelessWidget {
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
           initialData: const [],
         ),
-        ChangeNotifierProvider(create: (context) => SQLiteService()),
+        
       ],
       child: MaterialApp.router(
         title: 'Your App Title',

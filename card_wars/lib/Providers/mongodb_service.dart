@@ -3,13 +3,18 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mongo_dart/mongo_dart.dart';
+import 'package:provider/provider.dart';
 import '../models/item_model.dart';
 import '../models/game_model.dart';
 import '../models/user_model.dart';
+import '../providers/sql_lite_service.dart';
+import '../providers/Base.dart';
 import 'package:crypto/crypto.dart'; // For hashing passwords
 import 'package:uuid/uuid.dart'; // For generating tokens
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 class MongoDBService {
   late final StreamController<List<Item>> _controller;
@@ -21,7 +26,7 @@ class MongoDBService {
   final _loadingController = BehaviorSubject<bool>.seeded(false);
 
   Stream<bool> get isLoading => _loadingController.stream;
-
+  DbCollection get collection => _collection;
   final _progressController = BehaviorSubject<double>.seeded(0);
 
   Stream<double> get progressStream => _progressController.stream;
@@ -36,6 +41,13 @@ class MongoDBService {
     await _db.open();
     _collection = _db.collection(col);
     _startListening(col);
+  }
+
+  Future<DbCollection> _connect(String col) async {
+    //Db db = await Db.create(connectionString);
+    await _db.open();
+    DbCollection collet = _db.collection(col);
+    return collet;
   }
 
   void _startListening(String col) {
@@ -165,36 +177,31 @@ class MongoDBService {
   }
 
   Stream<List<Item>> get itemsStream => _controller.stream;
- Future<Item?> fetchLatestMongoItem() async {
-  try {
-    final pipeline = [
-      {
-        // Group by some criteria (e.g., by item ID or other fields) and get the latest document
-        '\$sort': {'date': -1}, // Sort by date in descending order
-      },
-      {
-        // Limit to 1 document to get the latest one
-        '\$limit': 1,
-      }
-    ];
-
-    // Run aggregation pipeline
-    final result = await _collection.aggregate(pipeline).;
-
-    if (result.isNotEmpty) {
-      return Item.fromMap(result.first);
+  Future<Item?> fetchLatestMongoItem() async {
+    try {
+      //DbCollection collections = await _connect('Cards');
+      final result = await _collection
+          .find(where.sortBy('date', descending: true).limit(1))
+          .toList();
+      // ignore: avoid_print
+      print(Item.fromMap(result[0]).runtimeType);
+      // ignore: avoid_print
+      print('mongoLatesty:$result');
+      // ignore: avoid_print
+      //print('this is :$StackTrace.current');
+      return Item.fromMap(result[0]);
+    } catch (e) {
+      print('Error fetching latest MongoDB item: $e');
+      return null;
     }
-    return null; // Return null if no items are found
-  } catch (e) {
-    print('Error fetching latest MongoDB item: $e');
-    return null;
   }
-}
-
 
   Future<Item?> fetchLatestSQLiteItem() async {
     try {
-      final Database db = await SQLiteService().database;
+      final sqliteservicep =
+          Provider.of<SQLiteService>(context as BuildContext, listen: false);
+
+      final Database db = await sqliteservicep.database;
       final List<Map<String, dynamic>> newestSqliteMap = await db.query(
         'items',
         orderBy: 'date DESC',
@@ -210,6 +217,8 @@ class MongoDBService {
   }
 
   void fetchop() async {
+    // ignore: avoid_print
+    print('thi is me');
     // Fetch the latest entry from MongoDB
     final latestMongoItem = await fetchLatestMongoItem();
     if (latestMongoItem != null) {
@@ -217,13 +226,15 @@ class MongoDBService {
           'Latest MongoDB item: ${latestMongoItem.name}, Date: ${latestMongoItem.date}');
     }
 
-    // Fetch the latest entry from SQLite
-    final latestSQLiteItem = await fetchLatestSQLiteItem();
+    final sqlLite = SQLiteService();
+    var sqldb=sqlLite.database;
+
+    /*final latestSQLiteItem = await fetchLatestSQLiteItem();
     if (latestSQLiteItem != null) {
       print(
           'Latest SQLite item: ${latestSQLiteItem.name}, Date: ${latestSQLiteItem.date}');
     }
-
+*/
     _loadingController.add(true); // Start loading
     _progressController.add(0); // Reset progress
 

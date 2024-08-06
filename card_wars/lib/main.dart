@@ -32,7 +32,7 @@ void main() async {
   //String? token = prefs.getString('auth_token');
 
   //var isValid = await base.mongoDBService.isSessionValid(token!);
-  await SQLiteService().database;
+ 
   runApp(MyApp(flag));
 }
 
@@ -53,7 +53,6 @@ class MyApp extends StatelessWidget {
           create: (context) => context.read<Base>().mongoDBService.itemsStream,
           initialData: const [],
         ),
-        
       ],
       child: MaterialApp.router(
         title: 'Your App Title',

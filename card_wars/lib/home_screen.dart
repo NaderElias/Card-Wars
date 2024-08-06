@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:card_wars/providers/sql_lite_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -65,15 +66,18 @@ class _HomeScreen extends State<HomeScreen> {
         ),
         ListTile(
           title: Text('Option 1'),
-          onTap: () => _showDrawerContent(_buildContent('Content for Option 1')),
+          onTap: () =>
+              _showDrawerContent(_buildContent('Content for Option 1')),
         ),
         ListTile(
           title: Text('Option 2'),
-          onTap: () => _showDrawerContent(_buildContent('Content for Option 2')),
+          onTap: () =>
+              _showDrawerContent(_buildContent('Content for Option 2')),
         ),
         ListTile(
           title: Text('Option 3'),
-          onTap: () => _showDrawerContent(_buildContent('Content for Option 3')),
+          onTap: () =>
+              _showDrawerContent(_buildContent('Content for Option 3')),
         ),
       ],
     );
@@ -126,7 +130,8 @@ class _HomeScreen extends State<HomeScreen> {
                 _buildItemDetail('Can Be Equipped', item.canBeEquipped),
                 _buildItemDetail('Can have Equipped', item.canhaveEquipped),
                 _buildItemDetail('Can Equip Other', item.canequipOther),
-                _buildItemDetail('Is There ability Condition', item.isThereabilityCondition),
+                _buildItemDetail(
+                    'Is There ability Condition', item.isThereabilityCondition),
                 _buildItemDetail('HP', item.hp),
                 _buildItemDetail('Attack', item.attk),
                 _buildItemDetail('Defense', item.def),
@@ -134,21 +139,29 @@ class _HomeScreen extends State<HomeScreen> {
                 _buildItemDetail('Grave Amount', item.graveAmount),
                 _buildItemDetail('Hand Amount', item.handAmount),
                 _buildItemDetail('Ability Duration', item.abilityDuration),
-                _buildItemDetail('Ability Duration Repeat', item.abilityDurationRepeat),
+                _buildItemDetail(
+                    'Ability Duration Repeat', item.abilityDurationRepeat),
                 _buildItemDetail('Equipped Number', item.equippedNumber),
                 _buildItemDetail('Has Effect On It', item.hasEffectOnIt),
                 _buildItemDetail('Effect Active', item.effectActive),
-                _buildItemDetail('Can Effect Be Applied On', item.canEffectBeAppliedOn),
+                _buildItemDetail(
+                    'Can Effect Be Applied On', item.canEffectBeAppliedOn),
                 _buildItemDetail('Can Use Effect', item.canUseEffect),
-                _buildItemDetail('Condition', item.condition.map((e) => e.toString()).join(', ')),
+                _buildItemDetail('Condition',
+                    item.condition.map((e) => e.toString()).join(', ')),
                 _buildItemDetail('Card Type', item.cardType.toString()),
                 _buildItemDetail('Activation', item.activation.toString()),
-                _buildItemDetail('Range', 'Start: ${item.range.start}, End: ${item.range.end}'),
+                _buildItemDetail('Range',
+                    'Start: ${item.range.start}, End: ${item.range.end}'),
                 _buildItemDetail('Target Number', item.targetNumber),
-                _buildItemDetail('Target Type', item.targetType.map((e) => e.toString()).join(', ')),
-                _buildItemDetail('Ability', item.ability.map((e) => e.toString()).join(', ')),
-              // ignore: unnecessary_null_comparison
-              ].where((element) => element != null).toList(), // Remove null entries
+                _buildItemDetail('Target Type',
+                    item.targetType.map((e) => e.toString()).join(', ')),
+                _buildItemDetail('Ability',
+                    item.ability.map((e) => e.toString()).join(', ')),
+                // ignore: unnecessary_null_comparison
+              ]
+                  .where((element) => element != null)
+                  .toList(), // Remove null entries
             ),
           ),
           actions: <Widget>[
@@ -165,7 +178,7 @@ class _HomeScreen extends State<HomeScreen> {
   }
 
   Widget _buildItemDetail(String title, dynamic value) {
-    if (value == null) return  value;
+    if (value == null) return value;
     return Text('$title: $value');
   }
 
@@ -173,8 +186,8 @@ class _HomeScreen extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final base = Provider.of<Base>(context);
     final itemsProvider = Provider.of<ItemsProvider>(context);
-
-return Scaffold(
+    final sqlite = Provider.of<SQLiteService>(context);
+    return Scaffold(
       appBar: AppBar(
         title: const Text('Database Items'),
         actions: [
@@ -191,22 +204,6 @@ return Scaffold(
       ),
       body: Column(
         children: [
-          StreamBuilder<bool>(
-            stream: base.mongoDBService.isLoading,
-            builder: (context, snapshot) {
-              if (snapshot.data == true) {
-                return StreamBuilder<double>(
-                  stream: base.mongoDBService.progressStream,
-                  builder: (context, progressSnapshot) {
-                    double progress = progressSnapshot.data ?? 0;
-                    return LinearProgressIndicator(value: progress);
-                  },
-                );
-              } else {
-                return Container(); // Empty container if not loading
-              }
-            },
-          ),
           Expanded(
             child: StreamBuilder<List<Item>>(
               stream: base.mongoDBService.itemsStream,
@@ -235,7 +232,8 @@ return Scaffold(
                           fit: StackFit.expand,
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.circular(12), // Adjust the radius as needed
+                              borderRadius: BorderRadius.circular(
+                                  12), // Adjust the radius as needed
                               child: Image.memory(
                                 imageBytes,
                                 fit: BoxFit.cover,
@@ -321,15 +319,23 @@ return Scaffold(
               target: [],
               targetNumber: [1, 0],
               targetType: [CardType.monster, CardType.player],
-              ability: [Condition.hp, Condition.defence], effectValidFromGrave: false, effectValidFromNone: false, isAbilityRev: false, date: DateTime.now(), id: null,
+              ability: [Condition.hp, Condition.defence],
+              effectValidFromGrave: false,
+              effectValidFromNone: false,
+              isAbilityRev: false,
+              date: DateTime.now(),
+              id: null,
             );
-            await base.mongoDBService.insertItem(newItem);
-            base.mongoDBService.fetchop();
+            await sqlite.database;
+            await sqlite.insertItem(newItem);
+
+            // bring these back
+            //  await base.mongoDBService.insertItem(newItem);
+           // base.mongoDBService.fetchop();
           }
         },
         child: const Icon(Icons.add),
       ),
     );
-
   }
 }

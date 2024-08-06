@@ -27,9 +27,6 @@ class MongoDBService {
 
   Stream<bool> get isLoading => _loadingController.stream;
   DbCollection get collection => _collection;
-  final _progressController = BehaviorSubject<double>.seeded(0);
-
-  Stream<double> get progressStream => _progressController.stream;
 
   MongoDBService(String col) {
     _controller = StreamController<List<Item>>();
@@ -198,8 +195,7 @@ class MongoDBService {
 
   Future<Item?> fetchLatestSQLiteItem() async {
     try {
-      final sqliteservicep =
-          Provider.of<SQLiteService>(context as BuildContext, listen: false);
+      final sqliteservicep = SQLiteService();
 
       final Database db = await sqliteservicep.database;
       final List<Map<String, dynamic>> newestSqliteMap = await db.query(
@@ -207,9 +203,9 @@ class MongoDBService {
         orderBy: 'date DESC',
         limit: 1,
       );
-      if (newestSqliteMap.isNotEmpty) {
-        return Item.fromMap(newestSqliteMap.first);
-      }
+      // ignore: avoid_print
+      print('this is the sqlitelatest$newestSqliteMap');
+      return Item.fromMap(newestSqliteMap.first);
     } catch (e) {
       print('Error fetching latest SQLite item: $e');
     }
@@ -217,39 +213,31 @@ class MongoDBService {
   }
 
   void fetchop() async {
+    final sqliteservicep = SQLiteService();
+    final Database db = await sqliteservicep.database;
     // ignore: avoid_print
-    print('thi is me');
+    var allItems = await sqliteservicep.getAllItems();
+    print('thisi all itemskljf$allItems');
+    if (allItems.isEmpty) {
+   //   var fill = await mongoAll();
+   //  await sqliteservicep.insertItems(fill!);
+      // var allItemss = await sqliteservicep.getAllItems();
+  //  print('thisi all itemskljf$allItemss');
+    }
+    // print('thi is me');
     // Fetch the latest entry from MongoDB
-    final latestMongoItem = await fetchLatestMongoItem();
-    if (latestMongoItem != null) {
-      print(
-          'Latest MongoDB item: ${latestMongoItem.name}, Date: ${latestMongoItem.date}');
-    }
+    /*final latestMongoItem = await fetchLatestMongoItem();
+    */
 
-    final sqlLite = SQLiteService();
-    var sqldb=sqlLite.database;
+  //  final latestSQLiteItem = await fetchLatestSQLiteItem();
+    
+    // if(){}
 
-    /*final latestSQLiteItem = await fetchLatestSQLiteItem();
-    if (latestSQLiteItem != null) {
-      print(
-          'Latest SQLite item: ${latestSQLiteItem.name}, Date: ${latestSQLiteItem.date}');
-    }
-*/
     _loadingController.add(true); // Start loading
-    _progressController.add(0); // Reset progress
 
     try {
-      final documents = await _collection.find().toList();
-      final items = documents.map((doc) => Item.fromMap(doc)).toList();
-
-      for (int i = 0; i < items.length; i++) {
-        // Simulate downloading each item
-        await Future.delayed(
-            Duration(milliseconds: 50)); // Adjust the delay as needed
-        _progressController.add((i + 1) / items.length);
-      }
-
-      _controller.add(items);
+       var items = await  mongoAll();
+      _controller.add(items!);
     } catch (e) {
       // Handle error
       print(e);
@@ -258,9 +246,19 @@ class MongoDBService {
     }
   }
 
+  Future<List<Item>?> mongoAll() async {
+    try {
+      final documents = await _collection.find().toList();
+      final items = documents.map((doc) => Item.fromMap(doc)).toList();
+      return items;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   void dispose() {
     _loadingController.close();
-    _progressController.close();
     _controller.close();
     _db.close();
   }

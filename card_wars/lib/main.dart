@@ -5,7 +5,7 @@ import 'providers/Base.dart';
 import 'providers/kards.dart';
 import 'providers/arena.dart';
 import 'providers/hand.dart';
-import 'providers/sql_lite_service.dart';
+import 'providers/file_provider.dart';
 import 'home_screen.dart';
 import 'login.dart';
 import 'board.dart';
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => SQLiteService()),
+        ChangeNotifierProvider(create: (context) => FileProvider()),
         ChangeNotifierProvider(create: (context) => Base()),
         ChangeNotifierProvider(create: (context) => ItemsProvider()),
         ChangeNotifierProvider(create: (context) => HandProvider()),

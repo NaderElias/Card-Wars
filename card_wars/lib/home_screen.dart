@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:card_wars/providers/sql_lite_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -186,7 +185,6 @@ class _HomeScreen extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final base = Provider.of<Base>(context);
     final itemsProvider = Provider.of<ItemsProvider>(context);
-    final sqlite = Provider.of<SQLiteService>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Database Items'),
@@ -326,12 +324,10 @@ class _HomeScreen extends State<HomeScreen> {
               date: DateTime.now(),
               id: null,
             );
-            await sqlite.database;
-            await sqlite.insertItem(newItem);
 
             // bring these back
-            //  await base.mongoDBService.insertItem(newItem);
-           // base.mongoDBService.fetchop();
+              await base.mongoDBService.insertItem(newItem);
+            base.mongoDBService.fetchop();
           }
         },
         child: const Icon(Icons.add),

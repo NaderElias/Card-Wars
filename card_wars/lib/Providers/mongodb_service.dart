@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../models/item_model.dart';
 import '../models/game_model.dart';
 import '../models/user_model.dart';
-import '../providers/sql_lite_service.dart';
+import '../providers/file_provider.dart';
 import '../providers/Base.dart';
 import 'package:crypto/crypto.dart'; // For hashing passwords
 import 'package:uuid/uuid.dart'; // For generating tokens
@@ -174,70 +174,33 @@ class MongoDBService {
   }
 
   Stream<List<Item>> get itemsStream => _controller.stream;
-  Future<Item?> fetchLatestMongoItem() async {
-    try {
-      //DbCollection collections = await _connect('Cards');
-      final result = await _collection
-          .find(where.sortBy('date', descending: true).limit(1))
-          .toList();
-      // ignore: avoid_print
-      print(Item.fromMap(result[0]).runtimeType);
-      // ignore: avoid_print
-      print('mongoLatesty:$result');
-      // ignore: avoid_print
-      //print('this is :$StackTrace.current');
-      return Item.fromMap(result[0]);
-    } catch (e) {
-      print('Error fetching latest MongoDB item: $e');
-      return null;
-    }
-  }
-
-  Future<Item?> fetchLatestSQLiteItem() async {
-    try {
-      final sqliteservicep = SQLiteService();
-
-      final Database db = await sqliteservicep.database;
-      final List<Map<String, dynamic>> newestSqliteMap = await db.query(
-        'items',
-        orderBy: 'date DESC',
-        limit: 1,
-      );
-      // ignore: avoid_print
-      print('this is the sqlitelatest$newestSqliteMap');
-      return Item.fromMap(newestSqliteMap.first);
-    } catch (e) {
-      print('Error fetching latest SQLite item: $e');
-    }
-    return null;
-  }
 
   void fetchop() async {
-    final sqliteservicep = SQLiteService();
-    final Database db = await sqliteservicep.database;
-    // ignore: avoid_print
-    var allItems = await sqliteservicep.getAllItems();
-    print('thisi all itemskljf$allItems');
-    if (allItems.isEmpty) {
-   //   var fill = await mongoAll();
-   //  await sqliteservicep.insertItems(fill!);
-      // var allItemss = await sqliteservicep.getAllItems();
-  //  print('thisi all itemskljf$allItemss');
-    }
-    // print('thi is me');
-    // Fetch the latest entry from MongoDB
-    /*final latestMongoItem = await fetchLatestMongoItem();
-    */
-
-  //  final latestSQLiteItem = await fetchLatestSQLiteItem();
-    
-    // if(){}
-
     _loadingController.add(true); // Start loading
-
+    var filo = FileProvider();
+    List<Item>? adam = (await filo.readListFromFile('adamass'));
+    if (adam.isEmpty) {
+      List<Item> items = await mongoAll();
+      if (items.isNotEmpty) {
+        await filo.saveListToFile(items, 'adamass');
+      }
+      List<Item>? odam = (await filo.readListFromFile('adamass'));
+      _controller.add(odam);
+    } else {
+      var x = adam.reduce(
+          (current, next) => current.date.isAfter(next.date) ? current : next);
+      final documents =
+          await _collection.find(where.gte('date', x.date)).toList();
+      final itemsll = documents.map((doc) => Item.fromMap(doc)).toList();
+      print('hello$itemsll');
+      filo.addEntriesToFile(itemsll, 'adamass');
+      List<Item>? opop = (await filo.readListFromFile('adamass'));
+      _controller.add(opop);
+      //  print('this is op ::::,,${x.date}');
+    }
     try {
-       var items = await  mongoAll();
-      _controller.add(items!);
+      // var items = await mongoAll();
+      // _controller.add(items);
     } catch (e) {
       // Handle error
       print(e);
@@ -246,14 +209,15 @@ class MongoDBService {
     }
   }
 
-  Future<List<Item>?> mongoAll() async {
+  Future<List<Item>> mongoAll() async {
     try {
       final documents = await _collection.find().toList();
       final items = documents.map((doc) => Item.fromMap(doc)).toList();
       return items;
     } catch (e) {
       print(e);
-      return null;
+      List<Item> itemso = [];
+      return itemso;
     }
   }
 

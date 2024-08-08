@@ -74,9 +74,9 @@ class _HomeScreen extends State<HomeScreen> {
               _showDrawerContent(_buildContent('Content for Option 2')),
         ),
         ListTile(
-          title: Text('Option 3'),
+          title: Text('Decks'),
           onTap: () =>
-              _showDrawerContent(_buildContent('Content for Option 3')),
+             context.go('/decks'),
         ),
       ],
     );

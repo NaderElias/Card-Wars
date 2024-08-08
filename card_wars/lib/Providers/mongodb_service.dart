@@ -192,7 +192,7 @@ class MongoDBService {
       var x = adam.reduce(
           (current, next) => current.date.isAfter(next.date) ? current : next);
       final documents =
-          await _collection.find(where.gte('date', x.date)).toList();
+          await _collection.find(where.gt('date', x.date)).toList();
       final itemsll = documents.map((doc) => Item.fromMap(doc)).toList();
       print('hello$itemsll');
       if(itemsll.isNotEmpty){filo.addEntriesToFile(itemsll, 'adamass');}

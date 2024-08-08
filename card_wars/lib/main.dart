@@ -7,6 +7,7 @@ import 'providers/arena.dart';
 import 'providers/hand.dart';
 import 'providers/file_provider.dart';
 import 'home_screen.dart';
+import 'decks_add.dart';
 import 'login.dart';
 import 'board.dart';
 import 'register.dart';
@@ -32,7 +33,7 @@ void main() async {
   //String? token = prefs.getString('auth_token');
 
   //var isValid = await base.mongoDBService.isSessionValid(token!);
- 
+
   runApp(MyApp(flag));
 }
 
@@ -90,6 +91,10 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/arena',
           builder: (context, state) => BoardPage(),
+        ),
+        GoRoute(
+          path: '/decks',
+          builder: (context, state) => ItemSelectionPage(),
         ),
       ],
     );

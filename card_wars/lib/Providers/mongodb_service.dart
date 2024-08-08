@@ -176,7 +176,9 @@ class MongoDBService {
   Stream<List<Item>> get itemsStream => _controller.stream;
 
   void fetchop() async {
-    _loadingController.add(true); // Start loading
+    
+    try {
+      _loadingController.add(true); // Start loading
     var filo = FileProvider();
     List<Item>? adam = (await filo.readListFromFile('adamass'));
     if (adam.isEmpty) {
@@ -193,14 +195,13 @@ class MongoDBService {
           await _collection.find(where.gte('date', x.date)).toList();
       final itemsll = documents.map((doc) => Item.fromMap(doc)).toList();
       print('hello$itemsll');
-      filo.addEntriesToFile(itemsll, 'adamass');
+      if(itemsll.isNotEmpty){filo.addEntriesToFile(itemsll, 'adamass');}
+      
       List<Item>? opop = (await filo.readListFromFile('adamass'));
       _controller.add(opop);
-      //  print('this is op ::::,,${x.date}');
+      
     }
-    try {
-      // var items = await mongoAll();
-      // _controller.add(items);
+      
     } catch (e) {
       // Handle error
       print(e);

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'models/item_model.dart';
+import 'providers/Base.dart';
 import 'providers/file_provider.dart';
 
 class ItemSelectionPage extends StatefulWidget {
@@ -13,6 +14,13 @@ class ItemSelectionPage extends StatefulWidget {
 }
 
 class _ItemSelectionPageState extends State<ItemSelectionPage> {
+  @override
+  void initState() {
+    super.initState();
+    final base = Provider.of<Base>(context, listen: false);
+    base.initialize('user');
+  }
+
   // A list of items to display (for demonstration purposes)
   Future<List<Item>> getAllItems() async {
     final itoms = FileProvider();
@@ -26,7 +34,7 @@ class _ItemSelectionPageState extends State<ItemSelectionPage> {
   }
 
   // A Set to keep track of selected items
-  final Set<Item> selectedItems = {};
+  final List<Item> selectedItems = [];
   List<Item> items = [];
   int x = 0;
   List<Item>? popo() {
@@ -43,14 +51,27 @@ class _ItemSelectionPageState extends State<ItemSelectionPage> {
     return null;
   }
 
+  void commitDecks(List<Item> x) async {
+    final base = Provider.of<Base>(context, listen: false);
+    base.initialize('user');
+   /// base.mongoDBService.collection = base.mongoDBService.db.collection('user');
+    Map<String, dynamic>? cookies = await base.mongoDBService.readCookie();
+    if (cookies != null) {
+      print('this is the cookie id${cookies['_id']}');
+    }
+    base.mongoDBService.updateDeckUser(cookies?['_id'], selectedItems);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final base = Provider.of<Base>(context, listen: false);
+     base.initialize('user');
     if (x == 0) {
       Future<List<Item>> itemso = getAllItems();
-      print('thi is the items$items');
+      //   print('thi is the items$items');
       itemso.then((myValue) {
         // Access the properties of `myValue` here
-        print('after poopo: ${myValue[0].name}');
+        // print('after poopo: ${myValue[0].name}');
         //items = myValue.toList();
         setState(() {
           items = myValue;
@@ -69,64 +90,66 @@ class _ItemSelectionPageState extends State<ItemSelectionPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Item Selection Page'),
-      ),
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // Number of columns in the grid
-          childAspectRatio: 1, // Aspect ratio for each item
+        appBar: AppBar(
+          title: Text('Item Selection Page'),
         ),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final item = items[index];
-          final isSelected = selectedItems.contains(item);
+        body: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Number of columns in the grid
+            childAspectRatio: 1, // Aspect ratio for each item
+          ),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final item = items[index];
+            final isSelected = selectedItems.contains(item);
 
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                if (isSelected) {
-                  selectedItems.remove(item);
-                } else {
-                  selectedItems.add(item);
-                }
-              });
-            },
-            child: Stack(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.0),
-                    border: Border.all(
-                      color: isSelected ? Colors.blue : Colors.grey,
-                      width: 2,
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (isSelected) {
+                    selectedItems.remove(item);
+                  } else {
+                    selectedItems.add(item);
+                  }
+                });
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: isSelected ? Colors.blue : Colors.grey,
+                        width: 2,
+                      ),
+                    ),
+                    child: Center(
+                      child:
+                          // Adjust the radius as needed
+                          Image.memory(
+                        getImage(item.image),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                  child: Center(
-                    child:
-                        // Adjust the radius as needed
-                        Image.memory(
-                      getImage(item.image),
-                      fit: BoxFit.cover,
+                  if (isSelected)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Icon(
+                        Icons.check_circle,
+                        color: Colors.blue,
+                        size: 24.0,
+                      ),
                     ),
-                  ),
-                ),
-                if (isSelected)
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Icon(
-                      Icons.check_circle,
-                      color: Colors.blue,
-                      size: 24.0,
-                    ),
-                  ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+                ],
+              ),
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(onPressed: () {
+          commitDecks(selectedItems);
+        }));
   }
 }

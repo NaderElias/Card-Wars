@@ -21,44 +21,41 @@ class MongoDBService {
   final storage = FlutterSecureStorage();
   final String connectionString =
       'mongodb+srv://Finn:yt8750yg@cluster0.pv838z4.mongodb.net/CardWars?retryWrites=true&w=majority';
-  late Db _db;
-  late DbCollection _collection;
+  late Db db;
+  late DbCollection collection;
   final _loadingController = BehaviorSubject<bool>.seeded(false);
 
   Stream<bool> get isLoading => _loadingController.stream;
-  DbCollection get collection => _collection;
 
-  MongoDBService(String col) {
+  MongoDBService(String col)  {
     _controller = StreamController<List<Item>>();
-    _init(col);
+     _init(col);
   }
 
   Future<void> _init(String col) async {
-    _db = await Db.create(connectionString);
-    await _db.open();
-    _collection = _db.collection(col);
+    db = await Db.create(connectionString);
+    await db.open();
+    collection = db.collection(col);
     _startListening(col);
   }
 
   Future<DbCollection> _connect(String col) async {
     //Db db = await Db.create(connectionString);
-    await _db.open();
-    DbCollection collet = _db.collection(col);
+    await db.open();
+    DbCollection collet = db.collection(col);
     return collet;
   }
 
   void _startListening(String col) {
-    if (col == 'live') {
-      Timer.periodic(Duration(seconds: 1), (_) async {});
-    } else {
+    if (col == 'Cards') {
       fetchop();
-    }
+    } else {}
   }
 
   Future<String> login(String username, String password) async {
     try {
       // Find the user by username and password
-      final user = await _collection.findOne({
+      final user = await collection.findOne({
         'email': username,
         'password':
             md5.convert(utf8.encode(password)).toString(), // Hash the password
@@ -70,7 +67,7 @@ class MongoDBService {
 
       // Generate a token
       final token = Uuid().v4();
-      var usero = await _collection.update(
+      var usero = await collection.update(
           where.id(user['_id']),
           modify
               .set('token', token)
@@ -88,7 +85,7 @@ class MongoDBService {
     try {
       // Hash the password before storing
       user.password = md5.convert(utf8.encode(user.password)).toString();
-      await _collection.insert(user.toMap());
+      await collection.insert(user.toMap());
     } catch (e) {
       print('Error registering user: $e');
     }
@@ -96,14 +93,14 @@ class MongoDBService {
 
   Future<void> insertItem(Item item) async {
     try {
-      await _collection.insert(item.toMap());
+      await collection.insert(item.toMap());
       print('Item inserted: $item');
     } catch (e) {}
   }
 
   Future<bool> validateToken(String token) async {
     try {
-      final user = await _collection.findOne({'token': token});
+      final user = await collection.findOne({'token': token});
       return user != null;
     } catch (e) {
       print('Error validating token: $e');
@@ -113,7 +110,7 @@ class MongoDBService {
 
   Future<void> insertGame(Game game) async {
     try {
-      await _collection.insert(game.toMap());
+      await collection.insert(game.toMap());
       print('Item inserted: $game');
     } catch (e) {}
   }
@@ -141,9 +138,13 @@ class MongoDBService {
     }
   }
 
+  Future<void> deleteCookie() async {
+    await storage.deleteAll();
+  }
+
   Future<bool> isSessionValid(String token) async {
     try {
-      final user = await _collection.findOne({'token': token});
+      final user = await collection.findOne({'token': token});
       if (user == null) return false;
 
       // Get the token creation time and check if it has expired
@@ -160,7 +161,7 @@ class MongoDBService {
   Future<Map<String, dynamic>?> getGame(String s) async {
     try {
       final objectId = ObjectId.parse(s); // Convert the string ID to ObjectId
-      return await _collection.findOne(where.id(objectId));
+      return await collection.findOne(where.id(objectId));
     } catch (e) {
       print(e);
     }
@@ -176,32 +177,31 @@ class MongoDBService {
   Stream<List<Item>> get itemsStream => _controller.stream;
 
   void fetchop() async {
-    
     try {
       _loadingController.add(true); // Start loading
-    var filo = FileProvider();
-    List<Item>? adam = (await filo.readListFromFile('adamass'));
-    if (adam.isEmpty) {
-      List<Item> items = await mongoAll();
-      if (items.isNotEmpty) {
-        await filo.saveListToFile(items, 'adamass');
+      var filo = FileProvider();
+      List<Item>? adam = (await filo.readListFromFile('adamass'));
+      if (adam.isEmpty) {
+        List<Item> items = await mongoAll();
+        if (items.isNotEmpty) {
+          await filo.saveListToFile(items, 'adamass');
+        }
+        List<Item>? odam = (await filo.readListFromFile('adamass'));
+        _controller.add(odam);
+      } else {
+        var x = adam.reduce((current, next) =>
+            current.date.isAfter(next.date) ? current : next);
+        final documents =
+            await collection.find(where.gt('date', x.date)).toList();
+        final itemsll = documents.map((doc) => Item.fromMap(doc)).toList();
+        print('hello$itemsll');
+        if (itemsll.isNotEmpty) {
+          filo.addEntriesToFile(itemsll, 'adamass');
+        }
+
+        List<Item>? opop = (await filo.readListFromFile('adamass'));
+        _controller.add(opop);
       }
-      List<Item>? odam = (await filo.readListFromFile('adamass'));
-      _controller.add(odam);
-    } else {
-      var x = adam.reduce(
-          (current, next) => current.date.isAfter(next.date) ? current : next);
-      final documents =
-          await _collection.find(where.gt('date', x.date)).toList();
-      final itemsll = documents.map((doc) => Item.fromMap(doc)).toList();
-      print('hello$itemsll');
-      if(itemsll.isNotEmpty){filo.addEntriesToFile(itemsll, 'adamass');}
-      
-      List<Item>? opop = (await filo.readListFromFile('adamass'));
-      _controller.add(opop);
-      
-    }
-      
     } catch (e) {
       // Handle error
       print(e);
@@ -212,7 +212,7 @@ class MongoDBService {
 
   Future<List<Item>> mongoAll() async {
     try {
-      final documents = await _collection.find().toList();
+      final documents = await collection.find().toList();
       final items = documents.map((doc) => Item.fromMap(doc)).toList();
       return items;
     } catch (e) {
@@ -222,9 +222,13 @@ class MongoDBService {
     }
   }
 
+  Future<void> updateDeckUser(String x, List<Item> deck) async {
+    collection.updateOne(where.eq('_id', x), modify.push('decks', deck));
+  }
+
   void dispose() {
     _loadingController.close();
     _controller.close();
-    _db.close();
+    db.close();
   }
 }

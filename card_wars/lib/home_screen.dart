@@ -47,6 +47,14 @@ class _HomeScreen extends State<HomeScreen> {
     });
   }
 
+  //// this is temp to be del
+  void deleteTemp() {
+    final base = Provider.of<Base>(context, listen: false);
+    base.initialize('');
+    base.mongoDBService.deleteCookie();
+    context.go('/');
+  }
+
   Widget _buildDrawerButtons() {
     return ListView(
       padding: EdgeInsets.zero,
@@ -75,8 +83,11 @@ class _HomeScreen extends State<HomeScreen> {
         ),
         ListTile(
           title: Text('Decks'),
-          onTap: () =>
-             context.go('/decks'),
+          onTap: () => context.go('/decks'),
+        ),
+        ListTile(
+          title: Text('LogOut'),
+          onTap: () => deleteTemp(),
         ),
       ],
     );
@@ -326,7 +337,7 @@ class _HomeScreen extends State<HomeScreen> {
             );
 
             // bring these back
-              await base.mongoDBService.insertItem(newItem);
+            await base.mongoDBService.insertItem(newItem);
             base.mongoDBService.fetchop();
           }
         },

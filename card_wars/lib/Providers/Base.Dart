@@ -6,8 +6,9 @@ class Base with ChangeNotifier {
 
   MongoDBService get mongoDBService => _mongoDBService;
 
-  void initialize(String col) {
-    _mongoDBService = MongoDBService(col);
+ void initialize(String col)  {
+    _mongoDBService =  MongoDBService(col);
     notifyListeners();
+    
   }
 }

@@ -5,8 +5,8 @@ class User {
   String image;
   String email;
   String password;
-  List<List<Item>> decks;
-  List<String> friends;
+  List<List<Item>> decks=[[]];
+  List<String> friends=[];
 
   User({
     required this.name,
@@ -34,7 +34,9 @@ class User {
       'image': image,
       'email': email,
       'password': password,
-      'decks': decks.map((deck) => deck.map((item) => item.toMap()).toList()).toList(),
+      'decks': decks.map((innerList) {
+      return innerList.map((item) => item.toMap()).toList();
+    }).toList(),
       'friends': friends,
     };
   }
